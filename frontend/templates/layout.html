@@ -1,0 +1,29 @@
+<!doctype html>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
+<title>Syncr</title>
+<div class=page>
+    <h1>Syncr</h1>
+
+    <!-- LOGIN CODE -> KEEP FOR LATER FUNCTIONALITY
+    <div class=metanav>
+        {% if not session.initialized %}
+            <a href="{{ url_for('initialize') }}">log in</a>
+        {% else %}
+
+        {% endif %}
+    </div>
+    -->
+
+    <!-- Flashed Messages For Action Notifications -->
+    {% for message in get_flashed_messages() %}
+        <div class=flash>{{ message }}</div>
+    {% endfor %}
+
+    <!-- List of Drops for this Node -->
+    <div class=drop-list>{% block drop_list %}{% endblock %}</div>
+
+    <!-- Container for info on selected Drop -->
+    <div class=drop-info>{% block body %}{% endblock %}</div>
+
+</div>
