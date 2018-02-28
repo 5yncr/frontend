@@ -104,6 +104,24 @@ h2 {
     margin:0;
     width: 80%;
 }
+.file-table {
+    width: 100%;
+    border-collapse:collapse;
+}
+.file-info-row:nth-child(odd) {
+    background-color:gainsboro;
+}
+.file-name {
+    width: auto;
+    text-align: left;
+}
+th.file-actions {
+    display: inline-block;
+    float: right;
+}
+button.file-action {
+    color: brown;
+}
 .btn-group button {
     background-color: #4CAF50; /* Green background */
     border: 1px solid green; /* Green border */

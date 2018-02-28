@@ -28,7 +28,15 @@ def get_subscribed_drops():
 
 def get_selected_drop(drop_id):
     # if drop does not exist -> return default drop display
-    return {'name': drop_id}
+    return {
+        'name': drop_id, 'files': [
+            {'name': 'FileOne', 'type': 'text'},
+            {'name': 'FileTwo', 'type': 'image'},
+            {'name': 'FileThree', 'type': 'video'},
+            {'name': 'FileFour', 'type': 'text'},
+            {'name': 'Folder', 'type': 'folder'},
+        ],
+    }
 
 
 @app.route('/unsubscribe/<drop_id>')
