@@ -1,3 +1,5 @@
+import subprocess
+
 from flask import Flask
 from flask import render_template
 
@@ -17,6 +19,7 @@ app.config.from_envvar('SYNCR_SETTINGS', silent=True)
 def get_owned_drops():
     # Placeholder until backend communication is set-up
     # TODO: validate data structure
+    subprocess.Popen(r'explorer /select,"C:\Users\atryjank\Desktop\toes.jpg"')
     return [{'name': 'O_Drop_1'}, {'name': 'O_Drop_2'}]
 
 
