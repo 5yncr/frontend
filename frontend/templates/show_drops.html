@@ -88,19 +88,8 @@
     {% endfor %}
     </table>
 {% elif selected %}
-    Name is {{ selected.name|safe }}. {{ action.description|safe }}
-    <table class=file-table>
-    {% for file in selected.files %}
-        <tr class=file-info-row>
-            <th class=file-name>{{ file.name|safe }}</th>
-            <th class=file-actions>
-                <button class=file-action>Open</button>
-                <button class=file-action>Del</button>
-            </th>
-        </tr>
-    {% endfor %}
-    </table>
+    Name is {{ selected.name | safe}}. {{action.description }}
 {% else %}
-    No Drop Selected {{ action.description|safe }}
+    No Drop Selected {{ action.description }}
 {% endif %}
 {% endblock %}
