@@ -28,7 +28,20 @@ def get_subscribed_drops():
 
 def get_selected_drop(drop_id):
     # if drop does not exist -> return default drop display
-    return {'name': drop_id, 'permission': get_permission(drop_id)}
+    return {
+        'name': drop_id, 'files': [
+            {'name': 'FileOne', 'type': 'text', 'occr': 'once'},
+            {'name': 'FileTwo', 'type': 'image', 'occr': 'many'},
+            {'name': 'FileThree', 'type': 'video', 'occr': 'once'},
+            {'name': 'FileFour', 'type': 'text', 'occr': 'once'},
+            {'name': 'Folder', 'type': 'folder', 'occr': 'many'},
+        ], 'permission': get_permission(drop_id),
+    }
+
+
+def get_conflicting_files(drop_id):
+    # eventually will be used to retrieve files of conflicting drops
+    pass
 
 
 def get_permission(drop_id):
@@ -40,6 +53,16 @@ def get_permission(drop_id):
             return "owned"
 
     return "subscribed"
+
+
+@app.route('/view_conflicts/<drop_id>')
+def view_conflicts(drop_id):
+    # if no drop is selected
+        # do nothing
+    # else
+        # retrieve files from all conflicting drops
+        # display said files in body of page
+    return show_drops(drop_id, "Current conflicts")
 
 
 @app.route('/add_file/<drop_id>')
