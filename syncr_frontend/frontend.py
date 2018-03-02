@@ -32,6 +32,11 @@ def open_file_location(file_path):
         subprocess.Popen(['open', file_path])
 
 
+def remove_file(file_path):
+    # Remove file at specified location from drop info
+    return
+
+
 def get_owned_drops():
     # Placeholder until backend communication is set-up
     # TODO: validate data structure
@@ -45,7 +50,11 @@ def get_subscribed_drops():
 
 
 def get_selected_drop(drop_id):
+    # Placeholder until backend communication is set-up
+    # TODO: validate data structure
+
     # if drop does not exist -> return default drop display
+
     return {
         'name': drop_id, 'files': [
             {'name': 'FileOne', 'type': 'text'},
@@ -86,18 +95,22 @@ def show_drops(drop_id=None, message=None):
     owned_drops = get_owned_drops()
     subscribed_drops = get_subscribed_drops()
     selected_drop = []
+
     if drop_id is not None:
         selected_drop = get_selected_drop(drop_id)
+
     performed_action = []  # REMOVE WHEN BACKEND COMMUNICATION IS ADDED
+
     if message is not None:
         performed_action = {'description': message}
+
+    # File Actions
     if request.method == 'POST':
-        if request.form.get('name') == 'open_file':
+        if request.form.get('type') == 'open_file':
             open_file_location('PUT PROPER LOCATION HERE')
-        elif request.form.get('name') == 'remove_file':
-            # REMOVE FUNCTIONALITY HERE
-            open_file_location('PUT PROPER LOCATION HERE')
-        return
+        elif request.form.get('type') == 'remove_file':
+            remove_file('PUT PROPER LOCATION HERE')
+
     return render_template(
         'show_drops.html', selected=selected_drop, subscribed=subscribed_drops,
         owned=owned_drops, action=performed_action,

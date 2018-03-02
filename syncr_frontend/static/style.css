@@ -119,7 +119,15 @@ th.file-actions {
     display: inline-block;
     float: right;
 }
-button,input.file-action {
+div.file-action-container {
+    display: inline-block;
+    float: right;
+}
+div.file-action-button-container {
+  display: inline-block;
+}
+input.file-action-button {
+    display: inline-block;
     color: brown;
 }
 .btn-group button {

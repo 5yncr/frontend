@@ -45,12 +45,20 @@
         <tr class=file-info-row>
             <th class=file-name>{{ file.name|safe }}</th>
             <th class=file-actions>
-              <form class=file-action name='open_file' action = '' method = 'post'>
-                <input class=file-action type='submit' name='open_file' value='open' />
-              </form>
-              <form name='remove_file' action = '' method = 'post'>
-                <input class=file-action type='submit' name='remove_file' value='remove' />
-              </form>
+              <div class=file-action-container>
+                <div class=file-action-button-container>
+                  <form class=file-action-button name='open_file' action = '' method = 'post'>
+                    <input type="hidden" name="type" value="open_file">
+                    <input class=file-action-button type='submit' name='open_file' value='open' />
+                  </form>
+                </div>
+                <div class=file-action-button-container>
+                  <form class=file-action-button name='remove_file' action = '' method = 'post'>
+                    <input type="hidden" name="type" value="remove_file">
+                    <input class=file-action-button type='submit' name='remove_file' value='remove' />
+                  </form>
+                </div>
+              </div>
             </th>
         </tr>
     {% endfor %}
