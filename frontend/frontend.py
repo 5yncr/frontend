@@ -55,6 +55,32 @@ def get_permission(drop_id):
     return "subscribed"
 
 
+def decline_conflict_file(file_path):
+    # if a file is in conflict with master
+    # declining changes leaves file on master the same
+    # backend communication: remove conflict file
+    return
+
+
+def accept_conflict_file(file_path):
+    # if a file is in conflict with file in master
+    # accepting changes modifies master file
+    # backend communication: change master file
+    return
+
+
+def accept_changes(file_path):
+    # Accepts the proposed changes of a file
+    # backend: modify the master file with proposed changes
+    return
+
+
+def decline_changes(file_path):
+    # Declines the proposed changes of a file
+    # backend: discard changes, keep master file
+    return
+
+
 @app.route('/view_conflicts/<drop_id>')
 def view_conflicts(drop_id):
     # if no drop is selected

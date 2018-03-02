@@ -130,6 +130,25 @@ input.file-action-button {
     display: inline-block;
     color: brown;
 }
+.dropdown {
+  float: right;
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content{
+  display: none;
+  position:absolute;
+  right:0;
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  text-decoration: none;
+  display: block;
+}
+
 .btn-group button {
     background-color: #4CAF50; /* Green background */
     border: 1px solid green; /* Green border */
