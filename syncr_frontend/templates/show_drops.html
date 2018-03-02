@@ -26,9 +26,12 @@
 {% block toolbar %}
 {% if selected %}
 	<div class="btn-group">
-  		<a href="{{ url_for('show_drops', drop_id=selected.name) }}"><button>Reload</button></a>
-  		<a href="{{ url_for('unsubscribe', drop_id=selected.name) }}"><button>Unsubscribe</button></a>
-  		<a href="{{ url_for('request_change', drop_id=selected.name) }}"><button>Request Change</button></a>
+  		<a href="{{ url_for('show_drops', drop_id=selected.name) }}">
+        <button>Reload</button></a>
+  		<a href="{{ url_for('unsubscribe', drop_id=selected.name) }}">
+        <button>Unsubscribe</button></a>
+  		<a href="{{ url_for('request_change', drop_id=selected.name) }}">
+        <button>Request Change</button></a>
 	</div>
 {% endif %}
 {% endblock %}
@@ -42,8 +45,12 @@
         <tr class=file-info-row>
             <th class=file-name>{{ file.name|safe }}</th>
             <th class=file-actions>
-                <button class=file-action>Open</button>
-                <button class=file-action>Del</button>
+              <form class=file-action name='open_file' action = '' method = 'post'>
+                <input class=file-action type='submit' name='open_file' value='open' />
+              </form>
+              <form name='remove_file' action = '' method = 'post'>
+                <input class=file-action type='submit' name='remove_file' value='remove' />
+              </form>
             </th>
         </tr>
     {% endfor %}
