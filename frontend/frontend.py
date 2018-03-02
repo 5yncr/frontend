@@ -28,7 +28,79 @@ def get_subscribed_drops():
 
 def get_selected_drop(drop_id):
     # if drop does not exist -> return default drop display
-    return {'name': drop_id}
+    return {'name': drop_id, 'permission': get_permission(drop_id)}
+
+
+def get_permission(drop_id):
+    # returns the permission type of the drop ID
+    owned_drops = get_owned_drops()
+
+    for drop in owned_drops:
+        if drop['name'] == drop_id:
+            return "owned"
+
+    return "subscribed"
+
+
+@app.route('/add_file/<drop_id>')
+def add_file(drop_id):
+    # if no drop is selected
+        # do nothing
+    # else
+        # communicate change to backend.
+        # open finder / windows equivalent to choose file.
+    return show_drops(drop_id, "file added")
+
+
+@app.route('/share_drop/<drop_id>')
+def share_drop(drop_id):
+    # if no drop is selected
+        # do nothing
+    # else
+        # communicate with backend to retrieve public key
+        # display public key in the body of the page
+    return show_drops(drop_id, "drop shared")
+
+
+@app.route('/view_pending_changes/<drop_id>')
+def view_pending_changes(drop_id):
+    # if no drop is selected
+        # do nothing
+    # else
+        # display pending file changes on body of page
+        # should provide options to review/accept pending changes
+    return show_drops(drop_id, "view pending changes")
+
+
+@app.route('/view_owners/<drop_id>')
+def view_owners(drop_id):
+    # if no drop is selected
+        # do nothing
+    # else
+        # communicate with backend to retrieve owners
+        # display owners on body of page
+        # give user option to remove owners if primary owner
+    return show_drops(drop_id, "list of owners")
+
+
+@app.route('/whitelist/<drop_id>')
+def whitelist(drop_id):
+    # if no drop is selected
+        # do nothing
+    # else
+        # display prompt on page to whitelist node
+        # prompt should communicate with backend
+    return show_drops(drop_id, "node whitelisted")
+
+
+@app.route('/delete_drop/<drop_id>')
+def delete_drop(drop_id):
+    # if no drop is selected
+        # do nothing
+    # else
+        # communicate deletion to backend.
+        # backend should delete drop?
+    return show_drops(drop_id, "drop deleted")
 
 
 @app.route('/unsubscribe/<drop_id>')
