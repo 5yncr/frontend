@@ -23,5 +23,3 @@ Modified Files:
 Documentation:
 
 This week was my first exposure to both HTML5 and CSS, so I spent a decent amount of time both reading and getting used to the syntax. Besides that, I was tasked with implementing the buttons for owned drops, as well as some of the interior functionality of said buttons (specifically for the “Conflicts” and “Requested Changes” buttons). The buttons have been set up, and a decent portion of the interior functionality for said buttons have been implemented. I plan on finishing this within the upcoming week.
-
-***Important note: one of the commits added a fair amount of code (~40 lines) to the style.css file on my branch prior to merging with the master branch. To clarify, that code was from Alex (it helped with implementing buttons in the interior functionality of both Conflicts and Requested Changes” sections). My changes to style.css were for implementing dropdown buttons.
