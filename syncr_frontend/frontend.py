@@ -2,6 +2,7 @@ import platform
 import subprocess
 from os import path
 
+from flask import flash
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -19,6 +20,20 @@ app.config.from_envvar('SYNCR_SETTINGS', silent=True)
 # Backend Access Functions
 
 
+def send_message(message):
+    # Sends given message to backend
+    # Wait for a response or until TIMEOUT
+    # If error_message is not None, display error_message
+    # Else display success_message
+    response = {
+        'drop_id': message.get('drop_id'),
+        'file_name': message.get('file_name'),
+        'action': message.get('action'),
+        'message': "Generic Message For " + message.get('action'),
+    }
+    return response
+
+
 def open_file_location(file_path):
     # Placeholder until backend communication is set-up
     file_path = path.dirname(path.abspath(__file__))
@@ -32,9 +47,20 @@ def open_file_location(file_path):
         subprocess.Popen(['open', file_path])
 
 
-def remove_file(file_path):
+@app.route('/remove_file/<drop_id>/<file_name>')
+def remove_file(drop_id, file_name):
     # Remove file at specified location from drop info
-    return
+    message = {
+        'drop_id': drop_id,
+        'file_name': file_name,
+        'action': 'rf',
+    }
+    response = send_message(message)
+    # TODO: Remove file name after proper communication is set up
+    return show_drops(
+        response.get('drop_id'),
+        response.get('message') + " " + response.get("file_name"),
+    )
 
 
 def get_owned_drops():
@@ -216,13 +242,12 @@ def show_drops(drop_id=None, message=None):
 
     if message is not None:
         performed_action = {'description': message}
+        flash(message)
 
     # File Actions
     if request.method == 'POST':
         if request.form.get('type') == 'open_file':
             open_file_location('PUT PROPER LOCATION HERE')
-        elif request.form.get('type') == 'remove_file':
-            remove_file('PUT PROPER LOCATION HERE')
 
     return render_template(
         'show_drops.html', selected=selected_drop, subscribed=subscribed_drops,
