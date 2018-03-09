@@ -19,6 +19,9 @@ app.config.from_envvar('SYNCR_SETTINGS', silent=True)
 
 # Backend Access Functions
 
+# Global Variables
+curr_action = ''
+
 
 def send_message(message):
     # Sends given message to backend
@@ -51,6 +54,9 @@ def open_file_location(file_path):
 @app.route('/remove_file/<drop_id>/<file_name>')
 def remove_file(drop_id, file_name):
     # Remove file at specified location from drop info
+
+    set_curr_action('remove file')
+
     message = {
         'drop_id': drop_id,
         'file_name': file_name,
@@ -97,6 +103,8 @@ def get_selected_drop(drop_id):
 def get_conflicting_files(drop_id):
     # eventually will be used to retrieve files of conflicting drops
 
+    set_curr_action('get conflicting files')
+
     message = {
         'drop_id': drop_id,
         'action':  'get_c_f',
@@ -137,15 +145,38 @@ def get_drop_id(file_path):
     return drop_string
 
 
-@app.route('/decline_conflict_file/<file_path>')
-def decline_conflict_file(file_path):
+def get_file_name(file_path):
+    # retrieves the file name from a given path
+    file_name = ''
+
+    for letter in file_path:
+        if letter == '/':
+            file_name = ''
+        else:
+            file_name = file_name + letter
+
+    return file_name
+
+
+def set_curr_action(action_update):
+    # sets the global variable to a given value
+    global curr_action
+    curr_action = action_update
+
+
+# TODO: Get file name from path so that app.route doesnt have file_name.
+@app.route('/decline_conflict_file/<file_path>/<file_name>')
+def decline_conflict_file(file_path, file_name):
     # if a file is in conflict with master
     # declining changes leaves file on master the same
     # backend communication: remove conflict file
 
+    set_curr_action('current conflicts')
+
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
+        'file_name': file_name,
         'action': 'd_c_f',
     }
 
@@ -154,19 +185,23 @@ def decline_conflict_file(file_path):
 
     return show_drops(
         response.get('drop_id'),
-        response.get('message') + " of drop " + response.get('drop_id'),
+        response.get('message') + " of file " + response.get('file_name'),
     )
 
 
-@app.route('/accept_conflict_file/<file_path>')
-def accept_conflict_file(file_path):
+# TODO: Get file name from path so that app.route doesnt have file_name.
+@app.route('/accept_conflict_file/<file_path>/<file_name>')
+def accept_conflict_file(file_path, file_name):
     # if a file is in conflict with file in master
     # accepting changes modifies master file
     # backend communication: change master file
 
+    set_curr_action('current conflicts')
+
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
+        'file_name': file_name,
         'action': 'a_c_f',
     }
 
@@ -175,18 +210,22 @@ def accept_conflict_file(file_path):
 
     return show_drops(
         response.get('drop_id'),
-        response.get('message') + " of drop " + response.get('drop_id'),
+        response.get('message') + " of file " + response.get('file_name'),
     )
 
 
-@app.route('/accept_changes/<file_path>')
-def accept_changes(file_path):
+# TODO: Get file name from path so that app.route doesnt have file_name.
+@app.route('/accept_changes/<file_path>/<file_name>')
+def accept_changes(file_path, file_name):
     # Accepts the proposed changes of a file
     # backend: modify the master file with proposed changes
+
+    set_curr_action('view pending changes')
 
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
+        'file_name': file_name,
         'action': 'a_c',
     }
 
@@ -195,18 +234,22 @@ def accept_changes(file_path):
 
     return show_drops(
         response.get('drop_id'),
-        response.get('message') + " of drop " + response.get('drop_id'),
+        response.get('message') + " of file " + response.get('file_name'),
     )
 
 
-@app.route('/decline_changes/<file_path>')
-def decline_changes(file_path):
+# TODO: Get file name from path so that app.route doesnt have file_name.
+@app.route('/decline_changes/<file_path>/<file_name>')
+def decline_changes(file_path, file_name):
     # Declines the proposed changes of a file
     # backend: discard changes, keep master file
+
+    set_curr_action('view pending changes')
 
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
+        'file_name': file_name,
         'action': 'd_c',
     }
 
@@ -215,7 +258,7 @@ def decline_changes(file_path):
 
     return show_drops(
         response.get('drop_id'),
-        response.get('message') + " of drop " + response.get('drop_id'),
+        response.get('message') + " of file " + response.get('file_name'),
     )
 
 
@@ -226,6 +269,9 @@ def view_conflicts(drop_id):
     # else
         # retrieve files from all conflicting drops
         # display said files in body of page
+
+    set_curr_action('current conflicts')
+
     message = {
         'drop_id': drop_id,
         'action':  'v_c',
@@ -248,6 +294,9 @@ def add_file(drop_id):
     # else
         # communicate change to backend.
         # open finder / windows equivalent to choose file.
+
+    set_curr_action('add file')
+
     return show_drops(drop_id, "file added")
 
 
@@ -258,6 +307,9 @@ def share_drop(drop_id):
     # else
         # communicate with backend to retrieve public key
         # display public key in the body of the page
+
+    set_curr_action('share drop')
+
     return show_drops(drop_id, "drop shared")
 
 
@@ -268,6 +320,8 @@ def view_pending_changes(drop_id):
     # else
         # display pending file changes on body of page
         # should provide options to review/accept pending changes
+
+    set_curr_action('view pending changes')
 
     message = {
         'drop_id': drop_id,
@@ -291,6 +345,9 @@ def view_owners(drop_id):
         # communicate with backend to retrieve owners
         # display owners on body of page
         # give user option to remove owners if primary owner
+
+    set_curr_action('view owners')
+
     return show_drops(drop_id, "list of owners")
 
 
@@ -301,6 +358,9 @@ def whitelist(drop_id):
     # else
         # display prompt on page to whitelist node
         # prompt should communicate with backend
+
+    set_curr_action('whitelist')
+
     return show_drops(drop_id, "node whitelisted")
 
 
@@ -311,6 +371,8 @@ def delete_drop(drop_id):
     # else
         # communicate deletion to backend.
         # backend should delete drop?
+
+    set_curr_action('delete drop')
 
     message = {
         'drop_id': drop_id,
@@ -332,6 +394,9 @@ def unsubscribe(drop_id):
         # Do nothing
     # else
         # communicate change to backend
+
+    set_curr_action('unsubscribe')
+
     return show_drops(None, "unsubscribed")
 
 
@@ -342,6 +407,9 @@ def request_change(drop_id):
         # Do nothing
     # else
         # communicate change to backend
+
+    set_curr_action('request change')
+
     return show_drops(drop_id, "change requested")
 
 
@@ -372,7 +440,7 @@ def show_drops(drop_id=None, message=None):
 
     return render_template(
         'show_drops.html', selected=selected_drop, subscribed=subscribed_drops,
-        owned=owned_drops, action=performed_action,
+        owned=owned_drops, action=performed_action, selec_act=curr_action,
     )
 
 
