@@ -28,6 +28,7 @@ def send_message(message):
     response = {
         'drop_id': message.get('drop_id'),
         'file_name': message.get('file_name'),
+        'file_path': message.get('file_path'),
         'action': message.get('action'),
         'message': "Generic Message For " + message.get('action'),
     }
@@ -92,9 +93,22 @@ def get_selected_drop(drop_id):
     }
 
 
+@app.route('/get_conflicting_files/<drop_id>')
 def get_conflicting_files(drop_id):
     # eventually will be used to retrieve files of conflicting drops
-    pass
+
+    message = {
+        'drop_id': drop_id,
+        'action':  'get_c_f',
+    }
+
+    # TODO: Retrieve conflicting files names from backend.
+    response = send_message(message)
+
+    return show_drops(
+        response.get('drop_id'),
+        response.get('message') + " of drop " + response.get('drop_id'),
+    )
 
 
 def get_permission(drop_id):
@@ -108,30 +122,101 @@ def get_permission(drop_id):
     return "subscribed"
 
 
+def get_drop_id(file_path):
+    # retrieves the drop_id from a given file path
+    reached_slash = False
+    drop_string = ''
+
+    for letter in file_path:
+        if not reached_slash:
+            if letter == '/':
+                reached_slash = True
+            else:
+                drop_string = drop_string + letter
+
+    return drop_string
+
+
+@app.route('/decline_conflict_file/<file_path>')
 def decline_conflict_file(file_path):
     # if a file is in conflict with master
     # declining changes leaves file on master the same
     # backend communication: remove conflict file
-    return
+
+    message = {
+        'drop_id': get_drop_id(file_path),
+        'file_path': file_path,
+        'action': 'd_c_f',
+    }
+
+    # TODO: Communicate to do nothing to the master file on backend
+    response = send_message(message)
+
+    return show_drops(
+        response.get('drop_id'),
+        response.get('message') + " of drop " + response.get('drop_id'),
+    )
 
 
+@app.route('/accept_conflict_file/<file_path>')
 def accept_conflict_file(file_path):
     # if a file is in conflict with file in master
     # accepting changes modifies master file
     # backend communication: change master file
-    return
+
+    message = {
+        'drop_id': get_drop_id(file_path),
+        'file_path': file_path,
+        'action': 'a_c_f',
+    }
+
+    # TODO: Backend will modify master file with changes
+    response = send_message(message)
+
+    return show_drops(
+        response.get('drop_id'),
+        response.get('message') + " of drop " + response.get('drop_id'),
+    )
 
 
+@app.route('/accept_changes/<file_path>')
 def accept_changes(file_path):
     # Accepts the proposed changes of a file
     # backend: modify the master file with proposed changes
-    return
+
+    message = {
+        'drop_id': get_drop_id(file_path),
+        'file_path': file_path,
+        'action': 'a_c',
+    }
+
+    # TODO: Backend will modify master file with changes
+    response = send_message(message)
+
+    return show_drops(
+        response.get('drop_id'),
+        response.get('message') + " of drop " + response.get('drop_id'),
+    )
 
 
+@app.route('/decline_changes/<file_path>')
 def decline_changes(file_path):
     # Declines the proposed changes of a file
     # backend: discard changes, keep master file
-    return
+
+    message = {
+        'drop_id': get_drop_id(file_path),
+        'file_path': file_path,
+        'action': 'd_c',
+    }
+
+    # TODO: Backend will keep master file unchanged
+    response = send_message(message)
+
+    return show_drops(
+        response.get('drop_id'),
+        response.get('message') + " of drop " + response.get('drop_id'),
+    )
 
 
 @app.route('/view_conflicts/<drop_id>')
@@ -141,7 +226,19 @@ def view_conflicts(drop_id):
     # else
         # retrieve files from all conflicting drops
         # display said files in body of page
-    return show_drops(drop_id, "Current conflicts")
+    message = {
+        'drop_id': drop_id,
+        'action':  'v_c',
+    }
+
+    # TODO: Setup communication to retrieve conflicting files.
+    response = send_message(message)
+
+    # TODO: Get global variable setup for selected button (HTML)
+    return show_drops(
+        response.get('drop_id'),
+        response.get('message') + " of drop " + response.get('drop_id'),
+    )
 
 
 @app.route('/add_file/<drop_id>')
@@ -171,7 +268,19 @@ def view_pending_changes(drop_id):
     # else
         # display pending file changes on body of page
         # should provide options to review/accept pending changes
-    return show_drops(drop_id, "view pending changes")
+
+    message = {
+        'drop_id': drop_id,
+        'action': 'v_p_c',
+    }
+
+    # TODO: Setup communication to retrieve files with changes.
+    response = send_message(message)
+
+    return show_drops(
+        response.get('drop_id'),
+        response.get('message') + " of drop " + response.get('drop_id'),
+    )
 
 
 @app.route('/view_owners/<drop_id>')
@@ -202,7 +311,19 @@ def delete_drop(drop_id):
     # else
         # communicate deletion to backend.
         # backend should delete drop?
-    return show_drops(drop_id, "drop deleted")
+
+    message = {
+        'drop_id': drop_id,
+        'action': 'd_drop',
+    }
+
+    # TODO: Setup backend communication to remove drop
+    response = send_message(message)
+
+    return show_drops(
+        response.get('drop_id'),
+        response.get('message') + " of drop " + response.get('drop_id'),
+    )
 
 
 @app.route('/unsubscribe/<drop_id>')
