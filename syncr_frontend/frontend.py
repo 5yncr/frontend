@@ -164,14 +164,26 @@ def set_curr_action(action_update):
     curr_action = action_update
 
 
+def get_file_versions(file_path):
+    # TODO: link with backend to retrieve file version info.
+    # Retrieves available versions of a file.
+    # For now, this is a dummy file.
+    return {
+        'versions': [
+            {'name': 'Version 1', 'timestamp': 'ts1', 'owner': 'o1'},
+            {'name': 'Version 2', 'timestamp': 'ts2', 'owner': 'o2'},
+            {'name': 'Version 3', 'timestamp': 'ts3', 'owner': 'o3'},
+            {'name': 'Version 4', 'timestamp': 'ts4', 'owner': 'o4'},
+        ],
+    }
+
+
 # TODO: Get file name from path so that app.route doesnt have file_name.
 @app.route('/decline_conflict_file/<file_path>/<file_name>')
 def decline_conflict_file(file_path, file_name):
     # if a file is in conflict with master
     # declining changes leaves file on master the same
     # backend communication: remove conflict file
-
-    set_curr_action('current conflicts')
 
     message = {
         'drop_id': get_drop_id(file_path),
@@ -196,8 +208,6 @@ def accept_conflict_file(file_path, file_name):
     # accepting changes modifies master file
     # backend communication: change master file
 
-    set_curr_action('current conflicts')
-
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
@@ -220,8 +230,6 @@ def accept_changes(file_path, file_name):
     # Accepts the proposed changes of a file
     # backend: modify the master file with proposed changes
 
-    set_curr_action('view pending changes')
-
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
@@ -243,8 +251,6 @@ def accept_changes(file_path, file_name):
 def decline_changes(file_path, file_name):
     # Declines the proposed changes of a file
     # backend: discard changes, keep master file
-
-    set_curr_action('view pending changes')
 
     message = {
         'drop_id': get_drop_id(file_path),
@@ -424,6 +430,8 @@ def show_drops(drop_id=None, message=None):
     subscribed_drops = get_subscribed_drops()
     selected_drop = []
 
+    file_versions = get_file_versions('')  # REMOVE WHEN BACKEND IS ADDED
+
     if drop_id is not None:
         selected_drop = get_selected_drop(drop_id)
 
@@ -441,6 +449,7 @@ def show_drops(drop_id=None, message=None):
     return render_template(
         'show_drops.html', selected=selected_drop, subscribed=subscribed_drops,
         owned=owned_drops, action=performed_action, selec_act=curr_action,
+        versions=file_versions,
     )
 
 
