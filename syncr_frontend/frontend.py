@@ -101,8 +101,11 @@ def get_selected_drop(drop_id):
 
 @app.route('/get_conflicting_files/<drop_id>')
 def get_conflicting_files(drop_id):
-    # eventually will be used to retrieve files of conflicting drops
-
+    """
+    Retrieves conflicting files from a drop.
+    :param drop_id: ID of drop with conflicting files.
+    :return: list of conflicting files
+    """
     set_curr_action('get conflicting files')
 
     message = {
@@ -120,7 +123,11 @@ def get_conflicting_files(drop_id):
 
 
 def get_permission(drop_id):
-    # returns the permission type of the drop ID
+    """
+    Returns the permission type of the drop ID.
+    :param drop_id: The ID of a given drop.
+    :return: The permission type of the drop.
+    """
     owned_drops = get_owned_drops()
 
     for drop in owned_drops:
@@ -131,7 +138,12 @@ def get_permission(drop_id):
 
 
 def get_drop_id(file_path):
-    # retrieves the drop_id from a given file path
+    """
+    Gets drop id from file path
+    :param file_path: File path that contains drop ID
+    :return: drop ID
+    """
+
     reached_slash = False
     drop_string = ''
 
@@ -146,7 +158,12 @@ def get_drop_id(file_path):
 
 
 def get_file_name(file_path):
-    # retrieves the file name from a given path
+    """
+    Gets file name from file path
+    :param file_path: File path that contains file name
+    :return: file name
+    """
+
     file_name = ''
 
     for letter in file_path:
@@ -159,15 +176,25 @@ def get_file_name(file_path):
 
 
 def set_curr_action(action_update):
-    # sets the global variable to a given value
+    """
+    Sets the global variable to the current pressed
+    button
+    :param action_update: name of action
+    :return: none
+    """
+
     global curr_action
     curr_action = action_update
 
 
 def get_file_versions(file_path):
+    """
+    Retrieves available versions of a file
+    :param file_path: Path of conflicted file
+    :return: list of versions for particular file
+    """
     # TODO: link with backend to retrieve file version info.
-    # Retrieves available versions of a file.
-    # For now, this is a dummy file.
+
     return {
         'versions': [
             {'name': 'Version 1', 'timestamp': 'ts1', 'owner': 'o1'},
@@ -178,12 +205,15 @@ def get_file_versions(file_path):
     }
 
 
-# TODO: Get file name from path so that app.route doesnt have file_name.
+# TODO: Get file name from path so that file_name isn't parameter.
 @app.route('/decline_conflict_file/<file_path>/<file_name>')
 def decline_conflict_file(file_path, file_name):
-    # if a file is in conflict with master
-    # declining changes leaves file on master the same
-    # backend communication: remove conflict file
+    """
+    Sends 'decline conflict file' command to backend
+    :param file_path: path of the declined file
+    :param file_name: name of the declined file
+    :return: message sent back to frontend
+    """
 
     message = {
         'drop_id': get_drop_id(file_path),
@@ -201,12 +231,15 @@ def decline_conflict_file(file_path, file_name):
     )
 
 
-# TODO: Get file name from path so that app.route doesnt have file_name.
+# TODO: Get file name from path so that file_name isn't parameter.
 @app.route('/accept_conflict_file/<file_path>/<file_name>')
 def accept_conflict_file(file_path, file_name):
-    # if a file is in conflict with file in master
-    # accepting changes modifies master file
-    # backend communication: change master file
+    """
+    Sends 'accept conflict file' command to backend
+    :param file_path: path of the accepted file
+    :param file_name: name of the accepted file
+    :return: message sent back to frontend
+    """
 
     message = {
         'drop_id': get_drop_id(file_path),
@@ -224,11 +257,15 @@ def accept_conflict_file(file_path, file_name):
     )
 
 
-# TODO: Get file name from path so that app.route doesnt have file_name.
+# TODO: Get file name from path so that file_name isn't parameter.
 @app.route('/accept_changes/<file_path>/<file_name>')
 def accept_changes(file_path, file_name):
-    # Accepts the proposed changes of a file
-    # backend: modify the master file with proposed changes
+    """
+    Sends 'accept changes' command to backend
+    :param file_path: path of file with accepted changes
+    :param file_name: name of file with accepted changes
+    :return: message sent back to frontend
+    """
 
     message = {
         'drop_id': get_drop_id(file_path),
@@ -246,11 +283,15 @@ def accept_changes(file_path, file_name):
     )
 
 
-# TODO: Get file name from path so that app.route doesnt have file_name.
+# TODO: Get file name from path so that file_name isn't parameter.
 @app.route('/decline_changes/<file_path>/<file_name>')
 def decline_changes(file_path, file_name):
-    # Declines the proposed changes of a file
-    # backend: discard changes, keep master file
+    """
+    Sends 'decline changes' command to backend
+    :param file_path: path of file with declined changes
+    :param file_name: name of file with declined changes
+    :return: message sent back to frontend
+    """
 
     message = {
         'drop_id': get_drop_id(file_path),
@@ -270,11 +311,11 @@ def decline_changes(file_path, file_name):
 
 @app.route('/view_conflicts/<drop_id>')
 def view_conflicts(drop_id):
-    # if no drop is selected
-        # do nothing
-    # else
-        # retrieve files from all conflicting drops
-        # display said files in body of page
+    """
+    Sends 'view conflicts' command to backend
+    :param drop_id: name of drop with possible conflicts
+    :return: list of conflicted files sent to frontend
+    """
 
     set_curr_action('current conflicts')
 
@@ -321,11 +362,11 @@ def share_drop(drop_id):
 
 @app.route('/view_pending_changes/<drop_id>')
 def view_pending_changes(drop_id):
-    # if no drop is selected
-        # do nothing
-    # else
-        # display pending file changes on body of page
-        # should provide options to review/accept pending changes
+    """
+    Sends 'view pending changes' command to backend
+    :param drop_id: name of drop with pending changes
+    :return: list of files in drop with proposed changes
+    """
 
     set_curr_action('view pending changes')
 
@@ -372,11 +413,11 @@ def whitelist(drop_id):
 
 @app.route('/delete_drop/<drop_id>')
 def delete_drop(drop_id):
-    # if no drop is selected
-        # do nothing
-    # else
-        # communicate deletion to backend.
-        # backend should delete drop?
+    """
+    Sends the 'delete drop' message to backend
+    :param drop_id: name of the drop to be deleted
+    :return: drop is removed from backend and frontend
+    """
 
     set_curr_action('delete drop')
 
