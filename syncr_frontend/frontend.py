@@ -24,21 +24,61 @@ curr_action = ''
 
 
 def send_message(message):
-    # Sends given message to backend
-    # Wait for a response or until TIMEOUT
-    # If error_message is not None, display error_message
-    # Else display success_message
+    """
+    Sends given message to backend. Waits for a response
+    or until TIMEOUT
+    :param message: message sent to backend
+    :return: If error message is returned
+    display error message. Else display successful message.
+    """
+
+    # Example response for initial UI setup
+    # TODO: remove when socket communication is setup
     response = {
         'drop_id': message.get('drop_id'),
         'file_name': message.get('file_name'),
         'file_path': message.get('file_path'),
         'action': message.get('action'),
         'message': "Generic Message For " + message.get('action'),
+        'success': True,
+        'requested_drops': (
+            {
+                'drop_id': 'o1',
+                'name': 'O_Drop_1',
+                'version': None,
+                'previous_versions': [],
+                'primary_owner': 'owner_id',
+                'other_owners': [],
+                'signed_by': 'owner_id',
+                'files': [
+                    {'name': 'FileOne'},
+                    {'name': 'FileTwo'},
+                    {'name': 'FileThree'},
+                    {'name': 'FileFour'},
+                    {'name': 'Folder'},
+                ],
+            },
+            {
+                'drop_id': 'o2',
+                'name': 'O_Drop_2',
+                'version': None,
+                'previous_versions': [],
+                'primary_owner': 'owner_id',
+                'other_owners': [],
+                'signed_by': 'owner_id',
+                'files': [],
+            },
+        ),
     }
     return response
 
 
 def open_file_location(file_path):
+    """
+    Opens the location of the file
+    :param file_path: Path of the file on computer
+    :return: opens location of file
+    """
     # Placeholder until backend communication is set-up
     file_path = path.dirname(path.abspath(__file__))
 
@@ -53,8 +93,12 @@ def open_file_location(file_path):
 
 @app.route('/remove_file/<drop_id>/<file_name>')
 def remove_file(drop_id, file_name):
-    # Remove file at specified location from drop info
-
+    """
+    Removes file at specified location from drop info
+    :param drop_id: id of drop where file is located
+    :param file_name: name of removed file
+    :return: backend and ui removes file instance
+    """
     set_curr_action('remove file')
 
     message = {
@@ -71,32 +115,88 @@ def remove_file(drop_id, file_name):
 
 
 def get_owned_drops():
-    # Placeholder until backend communication is set-up
-    # TODO: validate data structure
-    return [{'name': 'O_Drop_1'}, {'name': 'O_Drop_2'}]
+    """
+    :return: Gets a list of own drop dictionaries
+    """
+    message = {
+        'action': 'get_owned',
+    }
+
+    response = send_message(message)
+
+    return response.get('requested_drops')
 
 
 def get_subscribed_drops():
-    # Placeholder until backend communication is set-up
-    # TODO: validate data structure
-    return [{'name': 'S_Drop_1'}, {'name': 'S_Drop_2'}, {'name': 'S_Drop_3'}]
-
-
-def get_selected_drop(drop_id):
-    # Placeholder until backend communication is set-up
-    # TODO: validate data structure
-
-    # if drop does not exist -> return default drop display
-
-    return {
-        'name': drop_id, 'files': [
-            {'name': 'FileOne', 'type': 'text', 'occr': 'once'},
-            {'name': 'FileTwo', 'type': 'image', 'occr': 'many'},
-            {'name': 'FileThree', 'type': 'video', 'occr': 'once'},
-            {'name': 'FileFour', 'type': 'text', 'occr': 'once'},
-            {'name': 'Folder', 'type': 'folder', 'occr': 'many'},
-        ], 'permission': get_permission(drop_id),
+    """
+    :return: Gets a list of subscribed drop dictionaries
+    """
+    message = {
+        'action': 'get_owned',
     }
+
+    send_message(message)
+    # response = send_message(message)
+
+    # TODO: Return generic response once socket communication is setup
+    # return response.get('requested_drops')
+    return (
+        {
+            'drop_id': 's1',
+            'name': 'S_Drop_1',
+            'version': None,
+            'previous_versions': [],
+            'primary_owner': 'owner_id',
+            'other_owners': [],
+            'signed_by': 'owner_id',
+            'files_hash': ["files_hash"],
+            'files': [
+                    {'name': 'FileOne'},
+                    {'name': 'FileTwo'},
+                    {'name': 'FileThree'},
+                    {'name': 'FileFour'},
+                    {'name': 'Folder'},
+            ],
+            'sig': ["header_signature"],
+        },
+        {
+            'drop_id': 's2',
+            'name': 'S_Drop_2',
+            'version': None,
+            'previous_versions': [],
+            'primary_owner': 'owner_id',
+            'other_owners': [],
+            'signed_by': 'owner_id',
+            'files_hash': ["files_hash"],
+            'files': [
+                    {'name': 'FileOne'},
+                    {'name': 'FileTwo'},
+                    {'name': 'FileThree'},
+            ],
+            'sig': ["header_signature"],
+        },
+    )
+
+
+# Return dictionary for selected drop
+def get_selected_drop(drop_id):
+    """
+    :param drop_id: Selected drop
+    :return: Dictionary for selected drop
+    """
+    message = {
+        'drop_id': drop_id,
+        'action': 'get_selected',
+    }
+
+    response = send_message(message)
+
+    drop_list = response.get('requested_drops')
+
+    if drop_list is None:
+        return None
+    else:
+        return drop_list[0]
 
 
 @app.route('/get_conflicting_files/<drop_id>')
@@ -336,28 +436,49 @@ def view_conflicts(drop_id):
 
 @app.route('/add_file/<drop_id>')
 def add_file(drop_id):
-    # if no drop is selected
-        # do nothing
-    # else
-        # communicate change to backend.
-        # open finder / windows equivalent to choose file.
+    """
+    Sends 'add file' message to backend
+    :param drop_id: ID of drop where file is added
+    :return: Prompt to add a file
+    """
 
     set_curr_action('add file')
 
-    return show_drops(drop_id, "file added")
+    file_path = None  # TODO: implement file picker (tkinter not working)
+
+    if file_path is None:
+        result = None
+    else:
+        message = {
+            'drop_id': drop_id,
+            'action': 'cp',
+            'file_path': file_path,
+        }
+        response = send_message(message)
+        # TODO: remove filename after socket setup
+        result = response.get('message') + ' ' + file_path
+
+    return show_drops(drop_id, result)
 
 
 @app.route('/share_drop/<drop_id>')
 def share_drop(drop_id):
-    # if no drop is selected
-        # do nothing
-    # else
-        # communicate with backend to retrieve public key
-        # display public key in the body of the page
+    """
+    Sends 'share drop' message to backend
+    :param drop_id: Drop to be shared
+    :return: backend sends back message with info to share drop
+    """
 
     set_curr_action('share drop')
 
-    return show_drops(drop_id, "drop shared")
+    message = {
+        'drop_id': drop_id,
+        'action': 'share',
+    }
+    response = send_message(message)
+    # TODO: remove drop_id after socket setup
+    result = response.get('message') + ' share id for ' + drop_id
+    return show_drops(drop_id, result)
 
 
 @app.route('/view_pending_changes/<drop_id>')
@@ -386,26 +507,23 @@ def view_pending_changes(drop_id):
 
 @app.route('/view_owners/<drop_id>')
 def view_owners(drop_id):
-    # if no drop is selected
-        # do nothing
-    # else
-        # communicate with backend to retrieve owners
-        # display owners on body of page
-        # give user option to remove owners if primary owner
-
+    """
+    Communicate with backend to retrieve owners
+    :param drop_id: ID of drop to view owners
+    :return: display owners on body of page
+    gives user option to remove owner if primary owner
+    """
     set_curr_action('view owners')
-
     return show_drops(drop_id, "list of owners")
 
 
 @app.route('/whitelist/<drop_id>')
 def whitelist(drop_id):
-    # if no drop is selected
-        # do nothing
-    # else
-        # display prompt on page to whitelist node
-        # prompt should communicate with backend
-
+    """
+    Communicate with backend to whitelist node
+    :param drop_id: ID of drop where node is whitelisted
+    :return: Display prompt on page to whitelist node
+    """
     set_curr_action('whitelist')
 
     return show_drops(drop_id, "node whitelisted")
@@ -437,27 +555,46 @@ def delete_drop(drop_id):
 
 @app.route('/unsubscribe/<drop_id>')
 def unsubscribe(drop_id):
-    # if no drop is selected
-        # Do nothing
-    # else
-        # communicate change to backend
+    """
+    Communicate with backend to unsubscribe from drop
+    :param drop_id: ID of drop to be unsubscribed
+    :return: UI and backend update to not have subscribed drop.
+    """
 
     set_curr_action('unsubscribe')
+    message = {
+        'drop_id': drop_id,
+        'action': 'unsub',
+    }
+    response = send_message(message)
+    result = response.get('message')
+    # TODO: remove drop_id after socket setup
+    result = result + ' ' + drop_id
 
-    return show_drops(None, "unsubscribed")
+    if response.get('success') is True:
+        return show_drops(None, result)
+    else:
+        return show_drops(drop_id, result)
 
 
 # Request a change to the selected drop
 @app.route('/request_change/<drop_id>')
 def request_change(drop_id):
-    # if no drop is seleted
-        # Do nothing
-    # else
-        # communicate change to backend
+    """
+    Communicate with backend to request change
+    :param drop_id: ID of drop with changes
+    :return: UI and backend update with proposed change
+    """
 
     set_curr_action('request change')
 
-    return show_drops(drop_id, "change requested")
+    message = {
+        'drop_id': drop_id,
+        'action': 'change',
+    }
+    response = send_message(message)
+    result = response.get('message')
+    return show_drops(drop_id, result)
 
 
 @app.route('/')
@@ -467,6 +604,12 @@ def startup():
 
 @app.route('/<drop_id>', methods=['GET', 'POST'])
 def show_drops(drop_id=None, message=None):
+    """
+    Main action handler. Shows drops
+    :param drop_id: ID of current drop
+    :param message: Message from a particular action
+    :return: renders web page based off of drop and action.
+    """
     owned_drops = get_owned_drops()
     subscribed_drops = get_subscribed_drops()
     selected_drop = []
@@ -475,6 +618,9 @@ def show_drops(drop_id=None, message=None):
 
     if drop_id is not None:
         selected_drop = get_selected_drop(drop_id)
+        # TODO: Remove when sockets are setup
+        selected_drop['name'] = drop_id
+        selected_drop['permission'] = get_permission(drop_id)
 
     performed_action = []  # REMOVE WHEN BACKEND COMMUNICATION IS ADDED
 
@@ -492,13 +638,3 @@ def show_drops(drop_id=None, message=None):
         owned=owned_drops, action=performed_action, selec_act=curr_action,
         versions=file_versions,
     )
-
-
-@app.route('/initialize', methods=['GET', 'POST'])
-def initialize():
-    return startup()
-    # if request.method == 'POST':
-    #    session['logged_in'] = True
-    #    flash('You were logged in')
-    #    return redirect(url_for('show_drops'))
-    # return render_template('initialize.html')
