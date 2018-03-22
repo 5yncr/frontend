@@ -1,6 +1,8 @@
 import platform
 import subprocess
 from os import path
+from tkinter import filedialog
+from tkinter import Tk
 
 from flask import flash
 from flask import Flask
@@ -446,7 +448,14 @@ def add_file(drop_id):
 
     set_curr_action('add file')
 
-    file_path = None  # TODO: implement file picker (tkinter not working)
+    root = Tk()
+    root.filename = filedialog.askopenfilename(
+        initialdir="/", title="Select file",
+        filetypes=[("all files", "*.*")],
+    )
+
+    file_path = root.filename
+    root.destroy()
 
     if file_path is None:
         result = None
