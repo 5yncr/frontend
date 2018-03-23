@@ -36,6 +36,7 @@ def send_message(message):
     # TODO: remove when socket communication is setup
     response = {
         'drop_id': message.get('drop_id'),
+        'drop_name': message.get('drop_name'),
         'file_name': message.get('file_name'),
         'file_path': message.get('file_path'),
         'action': message.get('action'),
@@ -305,7 +306,80 @@ def get_file_versions(file_path):
     }
 
 
+@app.route('/create_drop')
+def create_drop():
+    """
+    This function provides the UI with the prompt to create a drop
+    :return: response that triggers the UI prompt.
+    """
+
+    set_curr_action('create_drop')
+
+    return show_drops(
+        None,
+        None,
+    )
+
+
+@app.route('/subscribe_to_drop')
+def subscribe_to_drop():
+    """
+    This function provides the UI with the prompt to subscribe to a drop.
+    :return: response that triggers the UI prompt.
+    """
+
+    set_curr_action('subscribe_to_drop')
+
+    return show_drops(
+        None,
+        None,
+    )
+
+
+@app.route('/input_name/name')
+def input_name(name):
+    """
+    After inputting a name, a drop is created with said name.
+    :param name: Name of newly created drop
+    :return: Message sent back to frontend.
+    """
+
+    message = {
+        'action': 'i_n',
+        'drop_name': name,
+    }
+
+    response = send_message(message)
+
+    return show_drops(
+        None,
+        response.get('message') + ' ' + response.get('drop_name'),
+    )
+
+
+@app.route('/input_drop_to_subscribe/drop_name')
+def input_drop_to_subscribe(drop_name):
+    """
+    After inputting a name, user is subscribed to drop if it exists
+    :param drop_name: Name of supposed drop to join
+    :return: Message sent to frontend.
+    """
+
+    message = {
+        'action': 'i_d_t_s',
+        'drop_name': drop_name,
+    }
+
+    response = send_message(message)
+
+    return show_drops(
+        None,
+        response.get('message') + ' ' + response.get('drop_name'),
+    )
+
 # TODO: Get file name from path so that file_name isn't parameter.
+
+
 @app.route('/decline_conflict_file/<file_path>/<file_name>')
 def decline_conflict_file(file_path, file_name):
     """
