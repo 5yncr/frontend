@@ -1,13 +1,13 @@
 import platform
 import subprocess
 from os import path
-from tkinter import filedialog
-from tkinter import Tk
 
 from flask import flash
 from flask import Flask
 from flask import render_template
 from flask import request
+from tkinter import filedialog
+from tkinter import Tk
 
 app = Flask(__name__)  # create the application instance
 app.config.from_object(__name__)  # load config from this file , frontend.py
@@ -457,14 +457,12 @@ def decline_changes(file_path):
     """
     Sends 'decline changes' command to backend
     :param file_path: path of file with declined changes
-    :param file_name: name of file with declined changes
     :return: message sent back to frontend
     """
 
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
-        # 'file_name': file_name,
         'action': 'd_c',
     }
 
