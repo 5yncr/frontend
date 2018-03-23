@@ -340,17 +340,23 @@ def subscribe_to_drop():
     )
 
 
-@app.route('/input_name/<name>')
-def input_name(name):
+@app.route('/input_name', methods=['GET', 'POST'])
+def input_name():
     """
     After inputting a name, a drop is created with said name.
-    :param name: Name of newly created drop
     :return: Message sent back to frontend.
     """
 
+    drop_name = ''
+
+    user_input = request.form.get('inputted_drop_name')
+
+    if user_input is not None:
+        drop_name = user_input
+
     message = {
         'action': 'i_n',
-        'drop_name': name,
+        'drop_name': drop_name,
     }
 
     response = send_message(message)
@@ -361,13 +367,19 @@ def input_name(name):
     )
 
 
-@app.route('/input_drop_to_subscribe/<drop_name>')
-def input_drop_to_subscribe(drop_name):
+@app.route('/input_drop_to_subscribe', methods=['GET', 'POST'])
+def input_drop_to_subscribe():
     """
     After inputting a name, user is subscribed to drop if it exists
-    :param drop_name: Name of supposed drop to join
     :return: Message sent to frontend.
     """
+
+    drop_name = ''
+
+    user_input = request.form.get('drop_to_subscribe_to')
+
+    if user_input is not None:
+        drop_name = user_input
 
     message = {
         'action': 'i_d_t_s',
