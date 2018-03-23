@@ -336,7 +336,7 @@ def subscribe_to_drop():
     )
 
 
-@app.route('/input_name/name')
+@app.route('/input_name/<name>')
 def input_name(name):
     """
     After inputting a name, a drop is created with said name.
@@ -357,7 +357,7 @@ def input_name(name):
     )
 
 
-@app.route('/input_drop_to_subscribe/drop_name')
+@app.route('/input_drop_to_subscribe/<drop_name>')
 def input_drop_to_subscribe(drop_name):
     """
     After inputting a name, user is subscribed to drop if it exists
@@ -377,22 +377,18 @@ def input_drop_to_subscribe(drop_name):
         response.get('message') + ' ' + response.get('drop_name'),
     )
 
-# TODO: Get file name from path so that file_name isn't parameter.
 
-
-@app.route('/decline_conflict_file/<file_path>/<file_name>')
-def decline_conflict_file(file_path, file_name):
+@app.route('/decline_conflict_file/<file_path>')
+def decline_conflict_file(file_path):
     """
     Sends 'decline conflict file' command to backend
     :param file_path: path of the declined file
-    :param file_name: name of the declined file
     :return: message sent back to frontend
     """
 
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
-        'file_name': file_name,
         'action': 'd_c_f',
     }
 
@@ -401,24 +397,21 @@ def decline_conflict_file(file_path, file_name):
 
     return show_drops(
         response.get('drop_id'),
-        response.get('message') + " of file " + response.get('file_name'),
+        response.get('message'),
     )
 
 
-# TODO: Get file name from path so that file_name isn't parameter.
-@app.route('/accept_conflict_file/<file_path>/<file_name>')
-def accept_conflict_file(file_path, file_name):
+@app.route('/accept_conflict_file/<file_path>')
+def accept_conflict_file(file_path):
     """
     Sends 'accept conflict file' command to backend
     :param file_path: path of the accepted file
-    :param file_name: name of the accepted file
     :return: message sent back to frontend
     """
 
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
-        'file_name': file_name,
         'action': 'a_c_f',
     }
 
@@ -427,13 +420,12 @@ def accept_conflict_file(file_path, file_name):
 
     return show_drops(
         response.get('drop_id'),
-        response.get('message') + " of file " + response.get('file_name'),
+        response.get('message'),
     )
 
 
-# TODO: Get file name from path so that file_name isn't parameter.
-@app.route('/accept_changes/<file_path>/<file_name>')
-def accept_changes(file_path, file_name):
+@app.route('/accept_changes/<file_path>')
+def accept_changes(file_path):
     """
     Sends 'accept changes' command to backend
     :param file_path: path of file with accepted changes
@@ -444,7 +436,6 @@ def accept_changes(file_path, file_name):
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
-        'file_name': file_name,
         'action': 'a_c',
     }
 
@@ -453,13 +444,12 @@ def accept_changes(file_path, file_name):
 
     return show_drops(
         response.get('drop_id'),
-        response.get('message') + " of file " + response.get('file_name'),
+        response.get('message'),
     )
 
 
-# TODO: Get file name from path so that file_name isn't parameter.
-@app.route('/decline_changes/<file_path>/<file_name>')
-def decline_changes(file_path, file_name):
+@app.route('/decline_changes/<file_path>')
+def decline_changes(file_path):
     """
     Sends 'decline changes' command to backend
     :param file_path: path of file with declined changes
@@ -470,7 +460,7 @@ def decline_changes(file_path, file_name):
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
-        'file_name': file_name,
+        # 'file_name': file_name,
         'action': 'd_c',
     }
 
@@ -479,7 +469,7 @@ def decline_changes(file_path, file_name):
 
     return show_drops(
         response.get('drop_id'),
-        response.get('message') + " of file " + response.get('file_name'),
+        response.get('message'),
     )
 
 
