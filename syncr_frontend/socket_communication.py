@@ -1,6 +1,6 @@
 import socket as s
 
-import cPickle as Pickle
+import bencode
 
 
 class Socket:
@@ -38,7 +38,7 @@ class Socket:
         """
 
         # Convert dictionary to send-able type
-        data_string = Pickle.dumps(msg, -1)
+        data_string = bencode.encode(msg)
 
         # Send data to backend
         sent = self.sock.sendall(data_string)
@@ -66,7 +66,7 @@ class Socket:
 
         # Un-pickle data
         data_string = ''.join(chunks)
-        return Pickle.loads(data_string)
+        return bencode.decode(data_string)
 
     def close(self):
         """
