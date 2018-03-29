@@ -1,13 +1,14 @@
 import platform
 import subprocess
 from os import path
+from tkinter import filedialog
+from tkinter import Tk
 
+import socket_communication
 from flask import flash
 from flask import Flask
 from flask import render_template
 from flask import request
-from tkinter import filedialog
-from tkinter import Tk
 
 app = Flask(__name__)  # create the application instance
 app.config.from_object(__name__)  # load config from this file , frontend.py
@@ -19,10 +20,12 @@ app.config.update(dict(
 ))
 app.config.from_envvar('SYNCR_SETTINGS', silent=True)
 
-# Backend Access Functions
-
 # Global Variables
 curr_action = ''
+host = '127.0.0.1'
+port = '5005'
+
+# Backend Access Functions
 
 
 def send_message(message):
@@ -33,6 +36,20 @@ def send_message(message):
     :return: If error message is returned
     display error message. Else display successful message.
     """
+
+    error = None
+
+    sock = socket_communication.Socket.__init__()
+    error = sock.connect(host, port)
+    if error is None:
+        error = sock.send_message(message)
+    if error is None:
+        response = sock.receive_message()
+
+    print(response)
+
+    # TODO: if error occurs, return a response with 'message' set
+    # TODO: to returned error message AND set success to FALSE
 
     # Example response for initial UI setup
     # TODO: remove when socket communication is setup
@@ -73,6 +90,7 @@ def send_message(message):
             },
         ),
     }
+
     return response
 
 
