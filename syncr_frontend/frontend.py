@@ -42,6 +42,7 @@ def send_message(message):
         'file_name': message.get('file_name'),
         'file_path': message.get('file_path'),
         'action': message.get('action'),
+        'valid_input': message.get('valid_input'),
         'message': "Generic Message For " + message.get('action'),
         'success': True,
         'requested_drops': (
@@ -340,23 +341,23 @@ def subscribe_to_drop():
     )
 
 
-@app.route('/input_name', methods=['GET', 'POST'])
+@app.route('/input_name', methods=['POST'])
 def input_name():
     """
     After inputting a name, a drop is created with said name.
     :return: Message sent back to frontend.
     """
 
-    drop_name = ''
+    valid_input = False
+    result = request.form.get('inputted_drop_name')
 
-    user_input = request.form.get('inputted_drop_name')
-
-    if user_input is not None:
-        drop_name = user_input
+    if result != '':
+        valid_input = True
 
     message = {
         'action': 'i_n',
-        'drop_name': drop_name,
+        'drop_name': result,
+        'valid_input': valid_input,
     }
 
     response = send_message(message)
@@ -367,23 +368,23 @@ def input_name():
     )
 
 
-@app.route('/input_drop_to_subscribe', methods=['GET', 'POST'])
+@app.route('/input_drop_to_subscribe', methods=['POST'])
 def input_drop_to_subscribe():
     """
     After inputting a name, user is subscribed to drop if it exists
     :return: Message sent to frontend.
     """
 
-    drop_name = ''
+    valid_input = False
+    result = request.form.get('drop_to_subscribe_to')
 
-    user_input = request.form.get('drop_to_subscribe_to')
-
-    if user_input is not None:
-        drop_name = user_input
+    if result != '':
+        valid_input = True
 
     message = {
         'action': 'i_d_t_s',
-        'drop_name': drop_name,
+        'drop_name': result,
+        'valid_input': valid_input,
     }
 
     response = send_message(message)
