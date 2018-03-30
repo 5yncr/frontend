@@ -726,7 +726,7 @@ def request_change(drop_id):
 
     message = {
         'drop_id': drop_id,
-        'action': 'change',
+        'action': 'r_c',
     }
     response = send_message(message)
     result = response.get('message')
