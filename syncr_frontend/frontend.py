@@ -108,7 +108,7 @@ def remove_file(drop_id, file_name):
     message = {
         'drop_id': drop_id,
         'file_name': file_name,
-        'action': 'rf',
+        'action': 'r_f',
     }
     response = send_message(message)
     # TODO: Remove file name after proper communication is set up
@@ -124,7 +124,7 @@ def get_owned_drops():
     :return: Gets a list of own drop dictionaries
     """
     message = {
-        'action': 'get_owned',
+        'action': 'g_o_d',
     }
 
     response = send_message(message)
@@ -138,7 +138,7 @@ def get_subscribed_drops():
     :return: Gets a list of subscribed drop dictionaries
     """
     message = {
-        'action': 'get_owned',
+        'action': 'g_sub_d',
     }
 
     send_message(message)
@@ -192,7 +192,7 @@ def get_selected_drop(drop_id):
     """
     message = {
         'drop_id': drop_id,
-        'action': 'get_selected',
+        'action': 'g_sel_d',
     }
 
     response = send_message(message)
@@ -216,7 +216,7 @@ def get_conflicting_files(drop_id):
 
     message = {
         'drop_id': drop_id,
-        'action':  'get_c_f',
+        'action':  'g_c_f',
     }
 
     # TODO: Retrieve conflicting files names from backend.
@@ -537,7 +537,7 @@ def add_file(drop_id):
     else:
         message = {
             'drop_id': drop_id,
-            'action': 'cp',
+            'action': 'a_f',
             'file_path': file_path,
         }
         response = send_message(message)
@@ -559,7 +559,7 @@ def share_drop(drop_id):
 
     message = {
         'drop_id': drop_id,
-        'action': 'share',
+        'action': 's_d',
     }
     response = send_message(message)
     # TODO: remove drop_id after socket setup
@@ -606,7 +606,7 @@ def add_owner(drop_id):
     message = {
         'drop_id': drop_id,
         'owner_id': request.form.get('owner_id'),
-        'action': 'add_owner',
+        'action': 'a_o',
     }
 
     response = send_message(message)
@@ -629,7 +629,7 @@ def remove_owner(drop_id, owner_id):
     message = {
         'drop_id': drop_id,
         'owner_id': owner_id,
-        'action': 'remove_owner',
+        'action': 'r_o',
     }
 
     response = send_message(message)
@@ -677,7 +677,7 @@ def delete_drop(drop_id):
 
     message = {
         'drop_id': drop_id,
-        'action': 'd_drop',
+        'action': 'd_d',
     }
 
     # TODO: Setup backend communication to remove drop
