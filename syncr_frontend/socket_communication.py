@@ -12,8 +12,6 @@ class Socket:
     Socket class used to communicate with backend
     """
 
-    sock = None
-
     def __init__(self, sock=None):
         if sock is None:
             self.sock = s.socket(s.AF_INET, s.SOCK_STREAM)
@@ -69,7 +67,7 @@ class Socket:
             chunks.append(chunk)
 
         # Un-pickle data
-        data_string = ''.join(chunks)
+        data_string = b''.join(chunks)
         response = bencode.decode(data_string)
 
         # Example response for initial UI setup
