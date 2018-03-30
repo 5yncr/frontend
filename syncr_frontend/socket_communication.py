@@ -2,6 +2,10 @@ import socket as s
 
 import bencode
 
+HANDLE_FRONTEND_REQUEST = 'handle_frontend_request'
+HOST = '127.0.0.1'
+PORT = '5005'
+
 
 class Socket:
     """
@@ -17,15 +21,13 @@ class Socket:
         else:
             self.sock = sock
 
-    def connect(self, host, port):
+    def connect(self):
         """
         Connect to specified connection
-        :param host: host to connect to
-        :param port: post to connect to
         :return: error message or None
         """
         try:
-            self.sock.connect((host, port))
+            self.sock.connect((HOST, PORT))
         except Exception as e:
             return e
         return None
@@ -36,6 +38,8 @@ class Socket:
         :param msg: dictionary of info to be sent to backend
         :return:
         """
+
+        msg['request_type'] = HANDLE_FRONTEND_REQUEST
 
         # Convert dictionary to send-able type
         data_string = bencode.encode(msg)
@@ -58,7 +62,7 @@ class Socket:
                 chunk = self.sock.recv(2048)
             except Exception as e:
                 print("Receiving Message error:", e)
-                self.sock.close()
+                self.close()
                 return None
             if chunk == '':
                 break
@@ -66,12 +70,54 @@ class Socket:
 
         # Un-pickle data
         data_string = ''.join(chunks)
-        return bencode.decode(data_string)
+        response = bencode.decode(data_string)
+
+        # Example response for initial UI setup
+        # response = {
+        #     'drop_id': message.get('drop_id'),
+        #     'drop_name': message.get('drop_name'),
+        #     'file_name': message.get('file_name'),
+        #     'file_path': message.get('file_path'),
+        #     'action': message.get('action'),
+        #     'message': "Generic Message For " + message.get('action'),
+        #     'success': True,
+        #     'requested_drops': (
+        #         {
+        #             'drop_id': 'o1',
+        #             'name': 'O_Drop_1',
+        #             'version': None,
+        #             'previous_versions': [],
+        #             'primary_owner': 'p_owner_id',
+        #             'other_owners': ["owner1", "owner2"],
+        #             'signed_by': 'owner_id',
+        #             'files': [
+        #                 {'name': 'FileOne'},
+        #                 {'name': 'FileTwo'},
+        #                 {'name': 'FileThree'},
+        #                 {'name': 'FileFour'},
+        #                 {'name': 'Folder'},
+        #             ],
+        #         },
+        #         {
+        #             'drop_id': 'o2',
+        #             'name': 'O_Drop_2',
+        #             'version': None,
+        #             'previous_versions': [],
+        #             'primary_owner': 'owner_id',
+        #             'other_owners': [],
+        #             'signed_by': 'owner_id',
+        #             'files': [],
+        #         },
+        #     ),
+        # }
+
+        return response
 
     def close(self):
         """
         Close the current socket
         :return:
         """
-        self.sock.close()
-        self.sock = None
+        if self.sock is not None:
+            self.sock.close()
+            self.sock = None

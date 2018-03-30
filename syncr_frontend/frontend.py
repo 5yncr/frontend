@@ -22,8 +22,6 @@ app.config.from_envvar('SYNCR_SETTINGS', silent=True)
 
 # Global Variables
 curr_action = ''
-host = '127.0.0.1'
-port = '5005'
 
 # Backend Access Functions
 
@@ -40,7 +38,7 @@ def send_message(message):
     error = None
 
     sock = socket_communication.Socket.__init__()
-    error = sock.connect(host, port)
+    error = sock.connect()
     if error is None:
         error = sock.send_message(message)
     if error is None:
@@ -48,48 +46,7 @@ def send_message(message):
 
     print(response)
 
-    # TODO: if error occurs, return a response with 'message' set
-    # TODO: to returned error message AND set success to FALSE
-
-    # Example response for initial UI setup
-    # TODO: remove when socket communication is setup
-    response = {
-        'drop_id': message.get('drop_id'),
-        'drop_name': message.get('drop_name'),
-        'file_name': message.get('file_name'),
-        'file_path': message.get('file_path'),
-        'action': message.get('action'),
-        'message': "Generic Message For " + message.get('action'),
-        'success': True,
-        'requested_drops': (
-            {
-                'drop_id': 'o1',
-                'name': 'O_Drop_1',
-                'version': None,
-                'previous_versions': [],
-                'primary_owner': 'p_owner_id',
-                'other_owners': ["owner1", "owner2"],
-                'signed_by': 'owner_id',
-                'files': [
-                    {'name': 'FileOne'},
-                    {'name': 'FileTwo'},
-                    {'name': 'FileThree'},
-                    {'name': 'FileFour'},
-                    {'name': 'Folder'},
-                ],
-            },
-            {
-                'drop_id': 'o2',
-                'name': 'O_Drop_2',
-                'version': None,
-                'previous_versions': [],
-                'primary_owner': 'owner_id',
-                'other_owners': [],
-                'signed_by': 'owner_id',
-                'files': [],
-            },
-        ),
-    }
+    # TODO: add message display in flashed messages section
 
     return response
 
