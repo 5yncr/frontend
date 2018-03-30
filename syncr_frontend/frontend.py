@@ -42,7 +42,6 @@ def send_message(message):
         'file_name': message.get('file_name'),
         'file_path': message.get('file_path'),
         'action': message.get('action'),
-        'valid_input': message.get('valid_input'),
         'message': "Generic Message For " + message.get('action'),
         'success': True,
         'requested_drops': (
@@ -108,7 +107,7 @@ def remove_file(drop_id, file_name):
     message = {
         'drop_id': drop_id,
         'file_name': file_name,
-        'action': 'r_f',
+        'action': 'remove_file',
     }
     response = send_message(message)
     # TODO: Remove file name after proper communication is set up
@@ -124,7 +123,7 @@ def get_owned_drops():
     :return: Gets a list of own drop dictionaries
     """
     message = {
-        'action': 'g_o_d',
+        'action': 'get_owned_drops',
     }
 
     response = send_message(message)
@@ -138,7 +137,7 @@ def get_subscribed_drops():
     :return: Gets a list of subscribed drop dictionaries
     """
     message = {
-        'action': 'g_sub_d',
+        'action': 'get_subscribed_drops',
     }
 
     send_message(message)
@@ -192,7 +191,7 @@ def get_selected_drop(drop_id):
     """
     message = {
         'drop_id': drop_id,
-        'action': 'g_sel_d',
+        'action': 'get_selected_drop',
     }
 
     response = send_message(message)
@@ -216,7 +215,7 @@ def get_conflicting_files(drop_id):
 
     message = {
         'drop_id': drop_id,
-        'action':  'g_c_f',
+        'action':  'get_conflicting_files',
     }
 
     # TODO: Retrieve conflicting files names from backend.
@@ -347,17 +346,11 @@ def input_name():
     After inputting a name, a drop is created with said name.
     :return: Message sent back to frontend.
     """
-
-    valid_input = False
     result = request.form.get('inputted_drop_name')
 
-    if result != '':
-        valid_input = True
-
     message = {
-        'action': 'i_n',
+        'action': 'input_name',
         'drop_name': result,
-        'valid_input': valid_input,
     }
 
     response = send_message(message)
@@ -368,23 +361,17 @@ def input_name():
     )
 
 
-@app.route('/input_drop_to_subscribe', methods=['POST'])
+@app.route('/subscribe', methods=['POST'])
 def input_drop_to_subscribe():
     """
     After inputting a name, user is subscribed to drop if it exists
     :return: Message sent to frontend.
     """
-
-    valid_input = False
     result = request.form.get('drop_to_subscribe_to')
 
-    if result != '':
-        valid_input = True
-
     message = {
-        'action': 'i_d_t_s',
+        'action': 'input_drop_to_subscribe',
         'drop_name': result,
-        'valid_input': valid_input,
     }
 
     response = send_message(message)
@@ -406,7 +393,7 @@ def decline_conflict_file(file_path):
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
-        'action': 'd_c_f',
+        'action': 'decline_conflict_file',
     }
 
     # TODO: Communicate to do nothing to the master file on backend
@@ -429,7 +416,7 @@ def accept_conflict_file(file_path):
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
-        'action': 'a_c_f',
+        'action': 'accept_conflict_file',
     }
 
     # TODO: Backend will modify master file with changes
@@ -453,7 +440,7 @@ def accept_changes(file_path):
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
-        'action': 'a_c',
+        'action': 'accept_changes',
     }
 
     # TODO: Backend will modify master file with changes
@@ -476,7 +463,7 @@ def decline_changes(file_path):
     message = {
         'drop_id': get_drop_id(file_path),
         'file_path': file_path,
-        'action': 'd_c',
+        'action': 'decline_changes',
     }
 
     # TODO: Backend will keep master file unchanged
@@ -500,7 +487,7 @@ def view_conflicts(drop_id):
 
     message = {
         'drop_id': drop_id,
-        'action':  'v_c',
+        'action':  'view_conflicts',
     }
 
     # TODO: Setup communication to retrieve conflicting files.
@@ -537,7 +524,7 @@ def add_file(drop_id):
     else:
         message = {
             'drop_id': drop_id,
-            'action': 'a_f',
+            'action': 'add_file',
             'file_path': file_path,
         }
         response = send_message(message)
@@ -559,7 +546,7 @@ def share_drop(drop_id):
 
     message = {
         'drop_id': drop_id,
-        'action': 's_d',
+        'action': 'share_drop',
     }
     response = send_message(message)
     # TODO: remove drop_id after socket setup
@@ -579,7 +566,7 @@ def view_pending_changes(drop_id):
 
     message = {
         'drop_id': drop_id,
-        'action': 'v_p_c',
+        'action': 'view_pending_changes',
     }
 
     # TODO: Setup communication to retrieve files with changes.
@@ -606,7 +593,7 @@ def add_owner(drop_id):
     message = {
         'drop_id': drop_id,
         'owner_id': request.form.get('owner_id'),
-        'action': 'a_o',
+        'action': 'add_owner',
     }
 
     response = send_message(message)
@@ -629,7 +616,7 @@ def remove_owner(drop_id, owner_id):
     message = {
         'drop_id': drop_id,
         'owner_id': owner_id,
-        'action': 'r_o',
+        'action': 'remove_owner',
     }
 
     response = send_message(message)
@@ -677,7 +664,7 @@ def delete_drop(drop_id):
 
     message = {
         'drop_id': drop_id,
-        'action': 'd_d',
+        'action': 'delete_drop',
     }
 
     # TODO: Setup backend communication to remove drop
@@ -700,7 +687,7 @@ def unsubscribe(drop_id):
     set_curr_action('unsubscribe')
     message = {
         'drop_id': drop_id,
-        'action': 'unsub',
+        'action': 'unsubscribe',
     }
     response = send_message(message)
     result = response.get('message')
@@ -726,7 +713,7 @@ def request_change(drop_id):
 
     message = {
         'drop_id': drop_id,
-        'action': 'r_c',
+        'action': 'request_change',
     }
     response = send_message(message)
     result = response.get('message')
