@@ -4,11 +4,12 @@ from os import path
 from tkinter import filedialog
 from tkinter import Tk
 
-import socket_communication
 from flask import flash
 from flask import Flask
 from flask import render_template
 from flask import request
+
+from . import communication
 
 app = Flask(__name__)  # create the application instance
 app.config.from_object(__name__)  # load config from this file , frontend.py
@@ -37,12 +38,10 @@ def send_message(message):
 
     error = None
 
-    sock = socket_communication.Socket.__init__()
-    error = sock.connect()
+    communicator = communication.Communicator()
+    error = communicator.send_messasge(message)
     if error is None:
-        error = sock.send_message(message)
-    if error is None:
-        response = sock.receive_message()
+        response = communicator.receive_message()
 
     print(response)
 
