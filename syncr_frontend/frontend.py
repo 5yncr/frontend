@@ -475,7 +475,6 @@ def accept_changes(file_path):
     """
     Sends 'accept changes' command to backend
     :param file_path: path of file with accepted changes
-    :param file_name: name of file with accepted changes
     :return: message sent back to frontend
     """
 
@@ -751,7 +750,7 @@ def request_change(drop_id):
     :return: UI and backend update with proposed change
     """
 
-    set_curr_action('request change')
+    set_curr_action('request_change')
 
     message = {
         'drop_id': drop_id,
@@ -760,6 +759,11 @@ def request_change(drop_id):
     response = send_message(message)
     result = response.get('message')
     return show_drops(drop_id, result)
+
+
+@app.route('/remove_change')
+def remove_change():
+    pass
 
 
 @app.route('/')

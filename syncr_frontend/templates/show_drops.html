@@ -147,6 +147,24 @@
       </tr>
     {% endfor %}
     </table>
+{% elif selected and selec_act == "request_change" %}
+  Request changes for drop {{ selected.name | safe }}:
+  <table class=file-table>
+  {% for file in selected.files %}
+      <tr class=file-info-row>
+          <th class=file-name>{{ file.name|safe }}</th>
+          <th class=file-actions>
+            <div class=file-action-container>
+              <div class=file-action-button-container>
+                  <form method="GET" action="{{ url_for('remove_change') }}">
+                      <input class=file-action-button type='submit' value='remove' />
+                  </form>
+              </div>
+            </div>
+          </th>
+      </tr>
+  {% endfor %}
+  </table>
 {% elif selected %}
     Name is {{ selected.name|safe }}. {{ action.description|safe }}
     <table class=file-table>
