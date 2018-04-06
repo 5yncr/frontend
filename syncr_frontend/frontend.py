@@ -22,6 +22,7 @@ app.config.from_envvar('SYNCR_SETTINGS', silent=True)
 
 # Global Variables
 curr_action = ''
+changed_files = []
 
 # Backend Access Functions
 
@@ -763,6 +764,16 @@ def request_change(drop_id):
 
 @app.route('/remove_change')
 def remove_change():
+    pass
+
+
+@app.route('/upload_file')
+def upload_file():
+    pass
+
+
+@app.route('/submit_changes')
+def submit_changes():
     pass
 
 
