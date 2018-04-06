@@ -32,20 +32,10 @@ def send_message(message):
     Sends given message to backend. Waits for a response
     or until TIMEOUT
     :param message: message sent to backend
-    :return: If error message is returned
-    display error message. Else display successful message.
+    :return: response from server
     """
 
-    error = None
-
-    communicator = communication.Communicator()
-    error = communicator.send_messasge(message)
-    if error is None:
-        response = communicator.receive_message()
-
-    print(response)
-
-    # TODO: add message display in flashed messages section
+    response = communication.send_message(message)
 
     return response
 
@@ -84,10 +74,10 @@ def remove_file(drop_id, file_name):
         'action': 'remove_file',
     }
     response = send_message(message)
-    # TODO: Remove file name after proper communication is set up
+
     return show_drops(
         response.get('drop_id'),
-        response.get('message') + " " + response.get("file_name"),
+        response.get('message'),
     )
 
 
@@ -114,47 +104,9 @@ def get_subscribed_drops():
         'action': 'get_subscribed_drops',
     }
 
-    send_message(message)
-    # response = send_message(message)
+    response = send_message(message)
 
-    # TODO: Return generic response once socket communication is setup
-    # return response.get('requested_drops')
-    return (
-        {
-            'drop_id': 's1',
-            'name': 'S_Drop_1',
-            'version': None,
-            'previous_versions': [],
-            'primary_owner': 'owner_id',
-            'other_owners': [],
-            'signed_by': 'owner_id',
-            'files_hash': ["files_hash"],
-            'files': [
-                    {'name': 'FileOne'},
-                    {'name': 'FileTwo'},
-                    {'name': 'FileThree'},
-                    {'name': 'FileFour'},
-                    {'name': 'Folder'},
-            ],
-            'sig': ["header_signature"],
-        },
-        {
-            'drop_id': 's2',
-            'name': 'S_Drop_2',
-            'version': None,
-            'previous_versions': [],
-            'primary_owner': 'owner_id',
-            'other_owners': [],
-            'signed_by': 'owner_id',
-            'files_hash': ["files_hash"],
-            'files': [
-                    {'name': 'FileOne'},
-                    {'name': 'FileTwo'},
-                    {'name': 'FileThree'},
-            ],
-            'sig': ["header_signature"],
-        },
-    )
+    return response.get('requested_drops')
 
 
 # Return dictionary for selected drop
@@ -192,12 +144,11 @@ def get_conflicting_files(drop_id):
         'action':  'get_conflicting_files',
     }
 
-    # TODO: Retrieve conflicting files names from backend.
     response = send_message(message)
 
     return show_drops(
         response.get('drop_id'),
-        response.get('message') + " of drop " + response.get('drop_id'),
+        response.get('message'),
     )
 
 
@@ -331,7 +282,7 @@ def input_name():
 
     return show_drops(
         None,
-        response.get('message') + ' ' + response.get('drop_name'),
+        response.get('message'),
     )
 
 
@@ -352,7 +303,7 @@ def input_drop_to_subscribe():
 
     return show_drops(
         None,
-        response.get('message') + ' ' + response.get('drop_name'),
+        response.get('message'),
     )
 
 
@@ -370,7 +321,6 @@ def decline_conflict_file(file_path):
         'action': 'decline_conflict_file',
     }
 
-    # TODO: Communicate to do nothing to the master file on backend
     response = send_message(message)
 
     return show_drops(
@@ -393,7 +343,6 @@ def accept_conflict_file(file_path):
         'action': 'accept_conflict_file',
     }
 
-    # TODO: Backend will modify master file with changes
     response = send_message(message)
 
     return show_drops(
@@ -417,7 +366,6 @@ def accept_changes(file_path):
         'action': 'accept_changes',
     }
 
-    # TODO: Backend will modify master file with changes
     response = send_message(message)
 
     return show_drops(
@@ -440,7 +388,6 @@ def decline_changes(file_path):
         'action': 'decline_changes',
     }
 
-    # TODO: Backend will keep master file unchanged
     response = send_message(message)
 
     return show_drops(
@@ -464,13 +411,12 @@ def view_conflicts(drop_id):
         'action':  'view_conflicts',
     }
 
-    # TODO: Setup communication to retrieve conflicting files.
     response = send_message(message)
 
     # TODO: Get global variable setup for selected button (HTML)
     return show_drops(
         response.get('drop_id'),
-        response.get('message') + " of drop " + response.get('drop_id'),
+        response.get('message'),
     )
 
 
@@ -502,8 +448,7 @@ def add_file(drop_id):
             'file_path': file_path,
         }
         response = send_message(message)
-        # TODO: remove filename after socket setup
-        result = response.get('message') + ' ' + file_path
+        result = response.get('message')
 
     return show_drops(drop_id, result)
 
@@ -524,7 +469,7 @@ def share_drop(drop_id):
     }
     response = send_message(message)
     # TODO: remove drop_id after socket setup
-    result = response.get('message') + ' share id for ' + drop_id
+    result = response.get('message')
     return show_drops(drop_id, result)
 
 
@@ -548,7 +493,7 @@ def view_pending_changes(drop_id):
 
     return show_drops(
         response.get('drop_id'),
-        response.get('message') + " of drop " + response.get('drop_id'),
+        response.get('message'),
     )
 
 
@@ -641,12 +586,11 @@ def delete_drop(drop_id):
         'action': 'delete_drop',
     }
 
-    # TODO: Setup backend communication to remove drop
     response = send_message(message)
 
     return show_drops(
         response.get('drop_id'),
-        response.get('message') + " of drop " + response.get('drop_id'),
+        response.get('message'),
     )
 
 
@@ -665,8 +609,6 @@ def unsubscribe(drop_id):
     }
     response = send_message(message)
     result = response.get('message')
-    # TODO: remove drop_id after socket setup
-    result = result + ' ' + drop_id
 
     if response.get('success') is True:
         return show_drops(None, result)

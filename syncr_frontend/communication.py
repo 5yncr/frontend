@@ -1,136 +1,102 @@
-import datetime
 import os
+import platform
+import socket
 
 import bencode
 
 HANDLE_FRONTEND_REQUEST = 'handle_frontend_request'
-FILENAME = 'communication.txt'
-TIMEOUT = 10.0
+TIMEOUT = 5.0
+UNIX_ADDRESS = './unix_socket'
+TCP_ADDRESS = ('localhost', 12345)
 
 
-class Communicator:
+def send_message(msg):
     """
-    Communicator class writes and reads to a file
-    that is used to communicate with the backend
-    of the 5yncr system
+    Sends message to backend over socket connection and waits for a response
+    :param msg: dictionary of info to be sent to backend
+    :return:
     """
 
-    cached_timestamp = None
+    # Convert dictionary to send-able type
+    data_string = bencode.encode(msg)
 
-    def __init__(self):
-        self.cached_timestamp = datetime.datetime.fromtimestamp(
-            os.stat(os.path.join(os.pardir, FILENAME)).st_mtime,
-        )
+    op_sys = platform.system()
+    if op_sys == 'Windows':
+        response_string = _tcp_send_message(data_string)
+    else:
+        response_string = _unix_send_message(data_string)
 
-    def send_message(self, msg):
-        """
-        Writes specified message to file that will be read by backend
-        :param msg: dictionary of info to be sent to backend
-        :return:
-        """
+    response = bencode.decode(response_string)
 
-        written = None
+    return response
 
-        with open(os.path.join(os.pardir, FILENAME), 'w') as file:
 
-            msg['request_type'] = HANDLE_FRONTEND_REQUEST
+def _tcp_send_message(msg):
+    """
+    Sends message to backend over tcp socket and awaits a response
+    :param msg:
+    :return:
+    """
 
-            # Convert dictionary to send-able type
-            data_string = bencode.encode(msg)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(TIMEOUT)
+    s.connect(TCP_ADDRESS)
 
-            # Send data to backend
-            written = file.write(data_string)
+    # Send request
+    s.sendall(msg)
+    s.shutdown(socket.SHUT_WR)
 
-            # Update stored timestamp
-            self.cached_timestamp = datetime.datetime.fromtimestamp(
-                os.stat(os.path.join(os.pardir, FILENAME)).st_mtime,
-            )
-
-        # Check if write was successful
-        if written is not None:
-            return None
+    # Read response from backend
+    response = b''
+    while True:
+        data = s.recv(4096)
+        if not data:
+            break
         else:
-            return 'Backend Communication Error - error sending'
+            response += data
 
-    def receive_message(self):
-        """
-        Listen for file to be updated by backend before reading
-        response in from file. If file is not updated within set
-        interval, returns error message to frontend
-        :return:
-        """
+    s.close()
+    return response
 
-        data_string = None
 
-        with open(os.path.join(os.pardir, FILENAME), 'w') as file:
-            # Get current modified timestamp
-            timestamp = datetime.datetime.fromtimestamp(
-                os.stat(os.path.join(os.pardir, FILENAME)).st_mtime,
-            )
+def _unix_send_message(msg):
+    """
+    Sends message to backend over unix socket and awaits a response
+    :param msg:
+    :return:
+    """
 
-            # Set up timeout
-            start_time = datetime.datetime.now()
-            time_passed = 0
+    try:
+        os.unlink(UNIX_ADDRESS)
+    except OSError:
+        # does not yet exist, do nothing
+        pass
 
-            # Wait for file change or until set interval passes
-            while self.cached_timestamp == timestamp and time_passed < TIMEOUT:
-                timestamp = datetime.datetime.fromtimestamp(
-                    os.stat(os.path.join(os.pardir, FILENAME)).st_mtime,
-                )
-                time_passed = (
-                    datetime.datetime.now() -
-                    start_time
-                ).total_seconds()
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s.settimeout(TIMEOUT)
+    s.bind(UNIX_ADDRESS)
 
-            if time_passed >= TIMEOUT:
-                return 'Backend Communication Error - timeout'
+    # Send request
+    s.sendall(msg)
+    s.shutdown(socket.SHUT_WR)
 
-            # Read updated file
-            data_string = file.read()
+    # Read response from backend
+    response = b''
+    while True:
+        data = s.recv(4096)
+        if not data:
+            break
+        else:
+            response += data
 
-        if data_string is None:
-            return 'Backend Communication Error - error receiving'
+    s.close()
+    return response
 
-        # Decode data
-        response = bencode.decode(data_string)
 
-        # Example response for initial UI setup
-        # response = {
-        #     'drop_id': message.get('drop_id'),
-        #     'drop_name': message.get('drop_name'),
-        #     'file_name': message.get('file_name'),
-        #     'file_path': message.get('file_path'),
-        #     'action': message.get('action'),
-        #     'message': "Generic Message For " + message.get('action'),
-        #     'success': True,
-        #     'requested_drops': (
-        #         {
-        #             'drop_id': 'o1',
-        #             'name': 'O_Drop_1',
-        #             'version': None,
-        #             'previous_versions': [],
-        #             'primary_owner': 'p_owner_id',
-        #             'other_owners': ["owner1", "owner2"],
-        #             'signed_by': 'owner_id',
-        #             'files': [
-        #                 {'name': 'FileOne'},
-        #                 {'name': 'FileTwo'},
-        #                 {'name': 'FileThree'},
-        #                 {'name': 'FileFour'},
-        #                 {'name': 'Folder'},
-        #             ],
-        #         },
-        #         {
-        #             'drop_id': 'o2',
-        #             'name': 'O_Drop_2',
-        #             'version': None,
-        #             'previous_versions': [],
-        #             'primary_owner': 'owner_id',
-        #             'other_owners': [],
-        #             'signed_by': 'owner_id',
-        #             'files': [],
-        #         },
-        #     ),
-        # }
-
-        return response
+if __name__ == '__main__':
+    request = {
+        'drop_id': 'test',
+        'action': 'handle_share_drop',
+    }
+    respond = send_message(request)
+    print(respond.get('message'))
