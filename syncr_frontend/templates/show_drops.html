@@ -97,13 +97,20 @@
         <th class=file-name>{{ file.name|safe }}</th>
         <th class=file-actions>
           <div class=file-action-container>
+            {% if file.occr == "many" %}
+              <select>
+                {% for version in versions %}
+                  <option value={{version.name}}>{{version.name}}</option>
+                {% endfor %}
+              </select>
+            {% endif %}
             <div class=file-action-button-container>
-              <form method="GET" action="{{ url_for('accept_conflict_file', file_path=selected.name) }}">
+              <form method="POST" action="{{ url_for('accept_conflict_file', file_path=selected.name) }}">
                 <input class=file-action-button type='submit' value='accept'/>
               </form>
             </div>
             <div class=file-action-button-container>
-              <form method="GET" action="{{ url_for('decline_conflict_file', file_path=selected.name) }}">
+              <form method="POST" action="{{ url_for('decline_conflict_file', file_path=selected.name) }}">
                 <input class=file-action-button type='submit' value='decline'/>
               </form>
             </div>

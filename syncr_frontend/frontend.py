@@ -71,11 +71,11 @@ def send_message(message):
                 'other_owners': ["owner1", "owner2"],
                 'signed_by': 'owner_id',
                 'files': [
-                    {'name': 'FileOne'},
-                    {'name': 'FileTwo'},
-                    {'name': 'FileThree'},
-                    {'name': 'FileFour'},
-                    {'name': 'Folder'},
+                    {'name': 'FileOne', 'occr': 'many'},
+                    {'name': 'FileTwo', 'occr': 'one'},
+                    {'name': 'FileThree', 'occr': 'many'},
+                    {'name': 'FileFour', 'occr': 'many'},
+                    {'name': 'Folder', 'occr': 'one'},
                 ],
             },
             {
@@ -779,7 +779,9 @@ def show_drops(drop_id=None, message=None):
     subscribed_drops = get_subscribed_drops()
     selected_drop = []
 
-    file_versions = get_file_versions('')  # REMOVE WHEN BACKEND IS ADDED
+    file_versions = get_file_versions(
+        '',
+    )['versions']  # REMOVE WHEN BACKEND IS ADDED
 
     if drop_id is not None:
         selected_drop = get_selected_drop(drop_id)
