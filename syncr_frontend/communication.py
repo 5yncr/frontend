@@ -3,11 +3,10 @@ import platform
 import socket
 
 import bencode
-
-HANDLE_FRONTEND_REQUEST = 'handle_frontend_request'
-TIMEOUT = 5.0
-UNIX_ADDRESS = './unix_socket'
-TCP_ADDRESS = ('localhost', 12345)
+from constants import BUFFER_SIZE
+from constants import TCP_ADDRESS
+from constants import TIMEOUT
+from constants import UNIX_ADDRESS
 
 
 def send_message(msg):
@@ -49,7 +48,7 @@ def _tcp_send_message(msg):
     # Read response from backend
     response = b''
     while True:
-        data = s.recv(4096)
+        data = s.recv(BUFFER_SIZE)
         if not data:
             break
         else:
@@ -83,7 +82,7 @@ def _unix_send_message(msg):
     # Read response from backend
     response = b''
     while True:
-        data = s.recv(4096)
+        data = s.recv(BUFFER_SIZE)
         if not data:
             break
         else:
