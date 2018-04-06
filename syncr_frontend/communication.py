@@ -95,7 +95,7 @@ def _unix_send_message(msg):
 if __name__ == '__main__':
     request = {
         'drop_id': 'test',
-        'action': 'handle_share_drop',
+        'action': 'ACTION_SHARE_DROP',
     }
     respond = send_message(request)
-    print(respond.get('message'))
+    print(respond.get('status'))
