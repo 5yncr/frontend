@@ -1,4 +1,3 @@
-import os
 import platform
 import socket
 
@@ -65,15 +64,9 @@ def _unix_send_message(msg):
     :return:
     """
 
-    try:
-        os.unlink(UNIX_ADDRESS)
-    except OSError:
-        # does not yet exist, do nothing
-        pass
-
     s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     s.settimeout(TIMEOUT)
-    s.bind(UNIX_ADDRESS)
+    s.connect(UNIX_ADDRESS)
 
     # Send request
     s.sendall(msg)
