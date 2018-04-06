@@ -23,6 +23,7 @@ app.config.from_envvar('SYNCR_SETTINGS', silent=True)
 
 # Global Variables
 curr_action = ''
+change_list = []
 
 # Backend Access Functions
 
@@ -265,6 +266,30 @@ def subscribe_to_drop():
     )
 
 
+@app.route('/transfer_ownership', methods=['POST'])
+def transfer_ownership():
+    """
+    After selecting an owner, ownership is
+    transferred from primary owner to selected owner.
+    This functionality is only available to the primary owner.
+    :return: Message sent to backend
+    """
+
+    result = request.form.get('transfer_id')
+
+    message = {
+        'action': 'transfer_ownership',
+        'transfer_owner_id': result,
+    }
+
+    response = send_message(message)
+
+    return show_drops(
+        None,
+        response.get('message'),
+    )
+
+
 @app.route('/input_name', methods=['POST'])
 def input_name():
     """
@@ -356,7 +381,6 @@ def accept_changes(file_path):
     """
     Sends 'accept changes' command to backend
     :param file_path: path of file with accepted changes
-    :param file_name: name of file with accepted changes
     :return: message sent back to frontend
     """
 
@@ -625,7 +649,7 @@ def request_change(drop_id):
     :return: UI and backend update with proposed change
     """
 
-    set_curr_action('request change')
+    set_curr_action('request_change')
 
     message = {
         'drop_id': drop_id,
@@ -634,6 +658,54 @@ def request_change(drop_id):
     response = send_message(message)
     result = response.get('message')
     return show_drops(drop_id, result)
+
+
+@app.route('/remove_change/<file_path>')
+def remove_change(file_path):
+    """
+    Removes a file from the list of requested changes.
+    :param file_path: Path of file that is to be removed.
+    :return: Updated change list without said file.
+    """
+    if file_path in change_list:
+        change_list.remove(file_path)
+
+
+@app.route('/upload_file')
+def upload_file():
+    """
+    Gives users a prompt to upload a file to list of
+    potential changes.
+    :return: Updated UI and list including file as
+    a potential change to master.
+    """
+
+    # TODO: Setup finder system to select a file to upload.
+
+    pass
+
+
+@app.route('/submit_changes/<drop_id>')
+def submit_changes(drop_id):
+    """
+    Communicate with backend to submit requested changes.
+    :return: Backend now contains a list of proposed changes
+    for primary / secondary owners to consider.
+    """
+
+    message = {
+        'action': 'submit_changes',
+        'drop_id': drop_id,
+        'change_list': change_list,
+    }
+
+    # TODO: Setup backend to track this change list.
+    response = send_message(message)
+
+    return show_drops(
+        response.get('drop_id'),
+        response.get('message'),
+    )
 
 
 @app.route('/')
@@ -653,7 +725,9 @@ def show_drops(drop_id=None, message=None):
     subscribed_drops = get_subscribed_drops()
     selected_drop = []
 
-    file_versions = get_file_versions('')  # REMOVE WHEN BACKEND IS ADDED
+    file_versions = get_file_versions(
+        '',
+    )['versions']  # REMOVE WHEN BACKEND IS ADDED
 
     if drop_id is not None:
         selected_drop = get_selected_drop(drop_id)
