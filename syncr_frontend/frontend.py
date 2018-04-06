@@ -1,14 +1,14 @@
 import platform
 import subprocess
 from os import path
-from tkinter import filedialog
-from tkinter import Tk
 
-import socket_communication
 from flask import flash
 from flask import Flask
 from flask import render_template
 from flask import request
+from tkinter import filedialog
+from tkinter import Tk
+# import socket_communication
 
 app = Flask(__name__)  # create the application instance
 app.config.from_object(__name__)  # load config from this file , frontend.py
@@ -35,6 +35,7 @@ def send_message(message):
     display error message. Else display successful message.
     """
 
+    """
     error = None
 
     sock = socket_communication.Socket.__init__()
@@ -47,6 +48,48 @@ def send_message(message):
     print(response)
 
     # TODO: add message display in flashed messages section
+
+    """
+
+    # TODO: Change this back to file communication.
+
+    response = {
+        'drop_id': message.get('drop_id'),
+        'drop_name': message.get('drop_name'),
+        'file_name': message.get('file_name'),
+        'file_path': message.get('file_path'),
+        'action': message.get('action'),
+        'message': "Generic Message For " + message.get('action'),
+        'success': True,
+        'requested_drops': (
+            {
+                'drop_id': 'o1',
+                'name': 'O_Drop_1',
+                'version': None,
+                'previous_versions': [],
+                'primary_owner': 'p_owner_id',
+                'other_owners': ["owner1", "owner2"],
+                'signed_by': 'owner_id',
+                'files': [
+                    {'name': 'FileOne'},
+                    {'name': 'FileTwo'},
+                    {'name': 'FileThree'},
+                    {'name': 'FileFour'},
+                    {'name': 'Folder'},
+                ],
+            },
+            {
+                'drop_id': 'o2',
+                'name': 'O_Drop_2',
+                'version': None,
+                'previous_versions': [],
+                'primary_owner': 'owner_id',
+                'other_owners': [],
+                'signed_by': 'owner_id',
+                'files': [],
+            },
+        ),
+    }
 
     return response
 
@@ -312,6 +355,30 @@ def subscribe_to_drop():
     return show_drops(
         None,
         None,
+    )
+
+
+@app.route('/transfer_ownership', methods=['POST'])
+def transfer_ownership():
+    """
+    After selecting an owner, ownership is
+    transferred from primary owner to selected owner.
+    This functionality is only available to the primary owner.
+    :return: Message sent to backend
+    """
+
+    result = request.form.get('transfer_id')
+
+    message = {
+        'action': 'transfer_ownership',
+        'transfer_owner_id': result,
+    }
+
+    response = send_message(message)
+
+    return show_drops(
+        None,
+        response.get('message'),
     )
 
 

@@ -85,6 +85,10 @@
         Owner ID: <input type='text' name='owner_id' />
         <input class=file-action-button type='submit' value='Add Owner' />
     </form>
+    <form method="POST" action="{{ url_for('transfer_ownership') }}">
+      Transfer Ownership to: <input type='text' name='transfer_id' />
+      <input class=file-action-button type='submit' value='Transfer' />
+    </form>
 {% elif selected and selec_act == "current conflicts" %}
     Current conflicts of drop {{ selected.name|safe }}:
     <table class=file-table>
