@@ -348,9 +348,12 @@ def input_name():
     """
     result = request.form.get('inputted_drop_name')
 
+    # TODO: Get directory path from user in frontend.
+    # TODO: Replace name input with selecting
+
     message = {
         'action': 'input_name',
-        'drop_name': result,
+        'directory': result,
     }
 
     response = send_message(message)
