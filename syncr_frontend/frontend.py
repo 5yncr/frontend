@@ -9,7 +9,7 @@ from flask import request
 from tkinter import filedialog
 from tkinter import Tk
 
-from . import communication
+# from . import communication
 
 app = Flask(__name__)  # create the application instance
 app.config.from_object(__name__)  # load config from this file , frontend.py
@@ -36,7 +36,46 @@ def send_message(message):
     :return: response from server
     """
 
-    response = communication.send_message(message)
+    # response = communication.send_message(message)
+
+    response = {
+        'change_list': message.get('change_list'),
+        'drop_id': message.get('drop_id'),
+        'drop_name': message.get('drop_name'),
+        'file_name': message.get('file_name'),
+        'file_path': message.get('file_path'),
+        'action': message.get('action'),
+        'message': "Generic Message For " + message.get('action'),
+        'success': True,
+        'requested_drops': (
+            {
+                'drop_id': 'o1',
+                'name': 'O_Drop_1',
+                'version': None,
+                'previous_versions': [],
+                'primary_owner': 'p_owner_id',
+                'other_owners': ["owner1", "owner2"],
+                'signed_by': 'owner_id',
+                'files': [
+                    {'name': 'FileOne'},
+                    {'name': 'FileTwo'},
+                    {'name': 'FileThree'},
+                    {'name': 'FileFour'},
+                    {'name': 'Folder'},
+                ],
+            },
+            {
+                'drop_id': 'o2',
+                'name': 'O_Drop_2',
+                'version': None,
+                'previous_versions': [],
+                'primary_owner': 'owner_id',
+                'other_owners': [],
+                'signed_by': 'owner_id',
+                'files': [],
+            },
+        ),
+    }
 
     return response
 
