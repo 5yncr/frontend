@@ -208,8 +208,12 @@
       <th class=file-actions>
         <div class=file-action-container>
           <div class=file-action-button-container>
-            <form method="POST" action="{{ url_for('input_name') }}">
-              Drop Name: <input type='text' name='inputted_drop_name' />
+            <form method="GET" action="{{ url_for('select_directory') }}">
+              <input class=file-action-button type='submit' value='Select Directory' />
+            </form>
+          </div>
+          <div class=file-action-button-container>
+            <form method="GET" action="{{ url_for('initialize_drop') }}">
               <input class=file-action-button type='submit' value='Create Drop'/>
             </form>
           </div>
