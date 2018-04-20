@@ -819,13 +819,6 @@ def show_drops(drop_id=None, message=None):
 
 class FrontendHook:
 
-    selected_drop = []
-    subscribed_drops = []
-    owned_drops = []
-    action = []
-    selected_action = []
-    versions = []
-
     def __init__(self):
         """
         Enable Testing Mode and pull default drop data from backend
