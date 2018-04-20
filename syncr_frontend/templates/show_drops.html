@@ -98,6 +98,17 @@
       </select>
       <input class=file-action-button type='submit' value='Transfer' />
     </form>
+{% elif selected and selec_act == "share drop" %}
+  <center>
+    <p>
+      <strong>
+        To share, send the following Drop ID to your friends: {{ selected.name | safe }}
+      </strong>
+      <br><br>
+      Please note, 5yncr does not provide any functionality to send this ID to others. <br>
+      This must be done via email, word-of-mouth, messaging software, etc. <br>
+    </p>
+  </center>
 {% elif selected and selec_act == "current conflicts" %}
     Current conflicts of drop {{ selected.name|safe }}:
     <table class=file-table>

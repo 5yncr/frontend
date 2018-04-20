@@ -9,7 +9,7 @@ from flask import request
 from tkinter import filedialog
 from tkinter import Tk
 
-# from . import communication
+from . import communication
 
 app = Flask(__name__)  # create the application instance
 app.config.from_object(__name__)  # load config from this file , frontend.py
@@ -37,7 +37,12 @@ def send_message(message):
     :return: response from server
     """
 
-    # response = communication.send_message(message)
+    response = communication.send_message(message)
+
+    """
+    # The following 'response' is being left in for testing purposes.
+    # It was the previous version that we used to run the GUI.
+    # When communication is set up, this section will be deleted.
 
     response = {
         'change_list': message.get('change_list'),
@@ -77,6 +82,7 @@ def send_message(message):
             },
         ),
     }
+    """
 
     return response
 
