@@ -1,3 +1,4 @@
+import base64
 import platform
 import subprocess
 from os import path
@@ -209,7 +210,10 @@ def get_permission(drop_id):
     owned_drops = get_owned_drops()
 
     for drop in owned_drops:
-        if drop['drop_id'] == drop_id:
+
+        curr_id = base64.b64decode(drop.get('drop_id'), altchars=b'+-')
+
+        if curr_id == drop_id:
             return "owned"
 
     return "subscribed"
