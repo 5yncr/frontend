@@ -216,6 +216,22 @@ def get_permission(drop_id):
     return "subscribed"
 
 
+def is_in_owned_drops(drop_id, owned_drops):
+    """
+    :param drop_id: ID of the drop.
+    :param owned_drops: List of owned drops
+    :return: Returns True if the given drop_id exists in the owned drops.
+    """
+
+    owned = False
+
+    for drop in owned_drops:
+        if drop.get('drop_id') == drop_id:
+            owned = True
+
+    return owned
+
+
 def get_drop_id(file_path):
     """
     Gets drop id from file path
@@ -853,7 +869,7 @@ def show_drops(drop_id=None, message=None):
 
         # Check if new version can be created
         version_update = selected_drop.get('new_version')
-        if version_update and get_permission(drop_id) == 'owned':
+        if version_update and is_in_owned_drops(drop_id, owned_drops):
             new_ver = True
             flash('NEW VERSION can be made. Select NEW VERSION.')
 
