@@ -9,7 +9,7 @@ from flask import request
 from tkinter import filedialog
 from tkinter import Tk
 
-from . import communication
+from .communication import send_request
 
 app = Flask(__name__)  # create the application instance
 app.config.from_object(__name__)  # load config from this file , frontend.py
@@ -25,6 +25,7 @@ app.config.from_envvar('SYNCR_SETTINGS', silent=True)
 curr_action = ''
 current_drop_path = ''
 change_list = []
+testing = False
 
 # Backend Access Functions
 
@@ -37,7 +38,52 @@ def send_message(message):
     :return: response from server
     """
 
-    response = communication.send_message(message)
+    response = send_request(message)
+
+    """
+    # The following 'response' is being left in for testing purposes.
+    # It was the previous version that we used to run the GUI.
+    # When communication is set up, this section will be deleted.
+
+    response = {
+        'change_list': message.get('change_list'),
+        'drop_id': message.get('drop_id'),
+        'drop_name': message.get('drop_name'),
+        'file_name': message.get('file_name'),
+        'file_path': message.get('file_path'),
+        'action': message.get('action'),
+        'message': "Generic Message For " + message.get('action'),
+        'success': True,
+        'requested_drops': (
+            {
+                'drop_id': 'o1',
+                'name': 'O_Drop_1',
+                'version': None,
+                'previous_versions': [],
+                'primary_owner': 'p_owner_id',
+                'other_owners': ["owner1", "owner2"],
+                'signed_by': 'owner_id',
+                'files': [
+                    {'name': 'FileOne'},
+                    {'name': 'FileTwo'},
+                    {'name': 'FileThree'},
+                    {'name': 'FileFour'},
+                    {'name': 'Folder'},
+                ],
+            },
+            {
+                'drop_id': 'o2',
+                'name': 'O_Drop_2',
+                'version': None,
+                'previous_versions': [],
+                'primary_owner': 'owner_id',
+                'other_owners': [],
+                'signed_by': 'owner_id',
+                'files': [],
+            },
+        ),
+    }
+    """
 
     """
     # The following 'response' is being left in for testing purposes.
@@ -169,12 +215,12 @@ def get_selected_drop(drop_id):
 
     response = send_message(message)
 
-    drop_list = response.get('requested_drops')
+    drop = response.get('requested_drops')
 
-    if drop_list is None:
+    if drop is None:
         return None
     else:
-        return drop_list[0]
+        return drop
 
 
 @app.route('/get_conflicting_files/<drop_id>')
@@ -362,13 +408,16 @@ def select_directory():
 
 
 @app.route('/initialize_drop')
-def initialize_drop():
+def initialize_drop(drop_path=None):
     """
     After inputting a name, a drop is created with said name.
     :return: Message sent back to frontend.
     """
     global current_drop_path
     response = ''
+
+    if drop_path is not None:
+        current_drop_path = drop_path
 
     if current_drop_path == '':
         flash('Cannot create drop. No directory was selected.')
@@ -394,12 +443,15 @@ def initialize_drop():
 
 
 @app.route('/subscribe', methods=['POST'])
-def input_drop_to_subscribe():
+def input_drop_to_subscribe(drop_code=None):
     """
     After inputting a name, user is subscribed to drop if it exists
     :return: Message sent to frontend.
     """
-    result = request.form.get('drop_to_subscribe_to')
+    if drop_code is None:
+        result = request.form.get('drop_to_subscribe_to')
+    else:
+        result = drop_code
 
     message = {
         'action': 'input_drop_to_subscribe',
@@ -604,20 +656,24 @@ def view_pending_changes(drop_id):
 
 
 @app.route('/view_owners/<drop_id>/add/', methods=['GET', 'POST'])
-def add_owner(drop_id):
+def add_owner(drop_id, owner_id=None):
     """
     Communicate with backend to add an owner to specified drop
     :param drop_id: ID of drop
     :return: display updated owners body of page
     """
+    if owner_id is None:
+        if request.method == 'POST':
+            if request.form.get('owner_id') is None:
+                return view_owners(drop_id)
 
-    if request.method == 'POST':
-        if request.form.get('owner_id') is None:
-            return view_owners(drop_id)
+        new_owner_id = request.form.get('owner_id')
+    else:
+        new_owner_id = owner_id
 
     message = {
         'drop_id': drop_id,
-        'owner_id': request.form.get('owner_id'),
+        'owner_id': new_owner_id,
         'action': 'add_owner',
     }
 
@@ -790,6 +846,28 @@ def submit_changes(drop_id):
     )
 
 
+@app.route('/new_version/<drop_id>')
+def new_version(drop_id):
+    """
+    Tells backend to create new version from
+    changed files for specified drop
+    :param drop_id: drop to create new version for
+    :return: renders web page based off backend response
+    """
+
+    message = {
+        'action': 'new_version',
+        'drop_id': drop_id,
+    }
+
+    response = send_message(message)
+
+    return show_drops(
+        response.get('drop_id'),
+        response.get('message'),
+    )
+
+
 @app.route('/')
 def startup():
     return show_drops(None, None)
@@ -803,9 +881,12 @@ def show_drops(drop_id=None, message=None):
     :param message: Message from a particular action
     :return: renders web page based off of drop and action.
     """
+    global testing
+
     owned_drops = get_owned_drops()
     subscribed_drops = get_subscribed_drops()
     selected_drop = []
+    new_ver = None
 
     file_versions = get_file_versions(
         '',
@@ -813,23 +894,99 @@ def show_drops(drop_id=None, message=None):
 
     if drop_id is not None:
         selected_drop = get_selected_drop(drop_id)
-        # TODO: Remove when sockets are setup
-        selected_drop['name'] = drop_id
-        selected_drop['permission'] = get_permission(drop_id)
+
+        # Check if new version can be created
+        version_update = selected_drop.get('new_version')
+        if version_update and get_permission(drop_id) == 'owned':
+            new_ver = True
+            flash('NEW VERSION can be made. Select NEW VERSION.')
 
     performed_action = []  # REMOVE WHEN BACKEND COMMUNICATION IS ADDED
 
     if message is not None:
         performed_action = {'description': message}
-        flash(message)
+        if not testing:
+            flash(message)
 
     # File Actions
-    if request.method == 'POST':
+    if not testing and request.method == 'POST':
         if request.form.get('type') == 'open_file':
             open_file_location('PUT PROPER LOCATION HERE')
 
-    return render_template(
-        'show_drops.html', selected=selected_drop, subscribed=subscribed_drops,
-        owned=owned_drops, action=performed_action, selec_act=curr_action,
-        versions=file_versions,
-    )
+    if not testing:
+        return render_template(
+            'show_drops.html',
+            selected=selected_drop,
+            subscribed=subscribed_drops,
+            owned=owned_drops,
+            action=performed_action,
+            selec_act=curr_action,
+            versions=file_versions,
+            new_version=new_ver,
+        )
+    else:
+        return {
+            'selected_drop': selected_drop,
+            'subscribed_drops': subscribed_drops,
+            'owned_drops': owned_drops,
+            'performed_action': performed_action,
+            'curr_action': curr_action,
+            'version': file_versions,
+        }
+
+
+class FrontendHook:
+
+    def __init__(self):
+        """
+        Enable Testing Mode and pull default drop data from backend
+        """
+        global testing
+        testing = True
+
+        backend_data = startup()
+        self.update_hook(backend_data)
+
+    def update_hook(self, backend_data):
+        self.selected_drop = backend_data.get('selected_drop')
+        self.subscribed_drops = backend_data.get('subscribed_drops')
+        self.owned_drops = backend_data.get('owned_drops')
+        self.action = backend_data.get('performed_action')
+        self.selected_action = backend_data.get('curr_action')
+        self.versions = backend_data.get('file_versions')
+
+    def send_message(self, message):
+        return send_message(message=message)
+
+    def remove_file(self, drop_id, file_name):
+        self.update_hook(remove_file(drop_id=drop_id, file_name=file_name))
+
+    def get_owned_drops(self):
+        return get_owned_drops()
+
+    def get_subscribed_drops(self):
+        return get_subscribed_drops()
+
+    def get_selected_drop(self, drop_id):
+        return get_selected_drop(drop_id=drop_id)
+
+    def initialize_drop(self, drop_path):
+        self.update_hook(initialize_drop(drop_path=drop_path))
+
+    def input_drop_to_subscribe(self, drop_code):
+        self.update_hook(input_drop_to_subscribe(drop_code=drop_code))
+
+    def share_drop(self, drop_id):
+        self.update_hook(share_drop(drop_id=drop_id))
+
+    def add_owner(self, drop_id, owner_id):
+        self.update_hook(add_owner(drop_id=drop_id, owner_id=owner_id))
+
+    def remove_owner(self, drop_id, owner_id):
+        self.update_hook(remove_owner(drop_id=drop_id, owner_id=owner_id))
+
+    def delete_drop(self, drop_id):
+        self.update_hook(delete_drop(drop_id=drop_id))
+
+    def unsubscribe(self, drop_id):
+        self.update_hook(unsubscribe(drop_id=drop_id))
