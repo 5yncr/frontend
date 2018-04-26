@@ -157,6 +157,20 @@ def get_subscribed_drops():
     return response.get('requested_drops')
 
 
+def get_owned_subscribed_drops():
+    """
+    :return: Gets a tuple of of dictionaries in format
+    (owned drop dict, subscribed drop dict)
+    """
+    message = {
+        'action': 'get_owned_subscribed_drops',
+    }
+
+    response = send_message(message)
+
+    return response.get('requested_drops_tuple')
+
+
 # Return dictionary for selected drop
 def get_selected_drop(drop_id):
     """
@@ -206,7 +220,10 @@ def get_permission(drop_id):
     :param drop_id: The ID of a given drop.
     :return: The permission type of the drop.
     """
-    owned_drops = get_owned_drops()
+
+    drop_tup = get_owned_subscribed_drops()
+
+    owned_drops = drop_tup[0]
 
     for drop in owned_drops:
 
@@ -855,8 +872,10 @@ def show_drops(drop_id=None, message=None):
     """
     global testing
 
-    owned_drops = get_owned_drops()
-    subscribed_drops = get_subscribed_drops()
+    drop_tups = get_owned_subscribed_drops()
+    owned_drops = drop_tups[0]
+    subscribed_drops = drop_tups[1]
+
     selected_drop = []
     new_ver = None
 
@@ -935,6 +954,9 @@ class FrontendHook:
 
     def get_owned_drops(self):
         return get_owned_drops()
+
+    def get_owned_subscribed_drops(self):
+        return get_owned_subscribed_drops()
 
     def get_subscribed_drops(self):
         return get_subscribed_drops()
