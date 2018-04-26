@@ -129,34 +129,6 @@ def remove_file(drop_id, file_name):
     )
 
 
-# Return list of owned drop dictionaries
-def get_owned_drops():
-    """
-    :return: Gets a list of own drop dictionaries
-    """
-    message = {
-        'action': 'get_owned_drops',
-    }
-
-    response = send_message(message)
-
-    return response.get('requested_drops')
-
-
-# Return list of subscribed drop dictionaries
-def get_subscribed_drops():
-    """
-    :return: Gets a list of subscribed drop dictionaries
-    """
-    message = {
-        'action': 'get_subscribed_drops',
-    }
-
-    response = send_message(message)
-
-    return response.get('requested_drops')
-
-
 def get_owned_subscribed_drops():
     """
     :return: Gets a tuple of of dictionaries in format
@@ -952,14 +924,8 @@ class FrontendHook:
     def remove_file(self, drop_id, file_name):
         self.update_hook(remove_file(drop_id=drop_id, file_name=file_name))
 
-    def get_owned_drops(self):
-        return get_owned_drops()
-
     def get_owned_subscribed_drops(self):
         return get_owned_subscribed_drops()
-
-    def get_subscribed_drops(self):
-        return get_subscribed_drops()
 
     def get_selected_drop(self, drop_id):
         return get_selected_drop(drop_id=drop_id)
