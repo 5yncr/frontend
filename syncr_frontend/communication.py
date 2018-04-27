@@ -31,13 +31,13 @@ def send_request(request):
     except socket.timeout:
         response = {
             'status': 'error',
-            'error': 'Connection Timeout. Check Backend Status',
+            'message': 'Connection Timeout. Check Backend Status',
         }
         return response
     except socket.error:
         response = {
             'status': 'error',
-            'error': 'Backend Communication Error',
+            'message': 'Backend Communication Error',
         }
         return response
 
