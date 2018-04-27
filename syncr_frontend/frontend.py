@@ -7,8 +7,6 @@ from flask import flash
 from flask import Flask
 from flask import render_template
 from flask import request
-from tkinter import filedialog
-from tkinter import Tk
 
 from .communication import send_request
 
@@ -193,31 +191,6 @@ def subscribe_to_drop():
         None,
         None,
     )
-
-
-@app.route('/select_directory')
-def select_directory():
-    """
-    Allows user to select directory to turn into drop.
-    :return: directory path is stored.
-    """
-    global current_drop_path
-
-    root = Tk()
-    root.filename = filedialog.askopenfilename(
-        initialdir="/", title="Select file",
-        filetypes=[("all files", "*.*")],
-    )
-
-    directory_path = root.filename
-    root.destroy()
-
-    if directory_path is None:
-        flash("No directory selected")
-    else:
-        current_drop_path = directory_path
-
-    return show_drops(None, None)
 
 
 @app.route('/initialize_drop/<path:drop_path>')
