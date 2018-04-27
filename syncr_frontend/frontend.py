@@ -1,6 +1,7 @@
 import platform
 import subprocess
 from os import path
+from os import scandir
 
 from flask import flash
 from flask import Flask
@@ -25,6 +26,7 @@ app.config.from_envvar('SYNCR_SETTINGS', silent=True)
 curr_action = ''
 current_drop_path = ''
 testing = False
+home_path = path.expanduser('~')[1:]
 
 # Backend Access Functions
 
@@ -161,8 +163,8 @@ def set_curr_action(action_update):
     curr_action = action_update
 
 
-@app.route('/create_drop')
-def create_drop():
+@app.route('/create_drop/<path:current_path>')
+def create_drop(current_path):
     """
     This function provides the UI with the prompt to create a drop
     :return: response that triggers the UI prompt.
@@ -173,6 +175,8 @@ def create_drop():
     return show_drops(
         None,
         None,
+        current_path,
+
     )
 
 
@@ -216,34 +220,31 @@ def select_directory():
     return show_drops(None, None)
 
 
-@app.route('/initialize_drop')
-def initialize_drop(drop_path=None):
+@app.route('/initialize_drop/<path:drop_path>')
+def initialize_drop(drop_path):
     """
     After inputting a name, a drop is created with said name.
     :return: Message sent back to frontend.
     """
-    global current_drop_path
     response = ''
 
-    if drop_path is not None:
-        current_drop_path = drop_path
-
-    if current_drop_path == '':
+    if drop_path is None:
         flash('Cannot create drop. No directory was selected.')
         has_response = False
     else:
         message = {
             'action': 'initialize_drop',
-            'directory': current_drop_path,
+            'directory': '/' + drop_path,
         }
         has_response = True
         response = send_message(message)
-        current_drop_path = ''
 
     if has_response:
         message = response.get('message')
     else:
         message = None
+
+    set_curr_action(None)
 
     return show_drops(
         None,
@@ -268,7 +269,6 @@ def input_drop_to_subscribe(drop_code=None):
     }
 
     response = send_message(message)
-
     return show_drops(
         None,
         response.get('message'),
@@ -446,11 +446,12 @@ def startup():
 
 
 @app.route('/<drop_id>', methods=['GET', 'POST'])
-def show_drops(drop_id=None, message=None):
+def show_drops(drop_id=None, message=None, current_path=None):
     """
     Main action handler. Shows drops
     :param drop_id: ID of current drop
     :param message: Message from a particular action
+    :param current_path: current directory recognized
     :return: renders web page based off of drop and action.
     """
     global testing
@@ -464,19 +465,20 @@ def show_drops(drop_id=None, message=None):
     permission = None
 
     if drop_id is not None:
+
         selected_drop = get_selected_drop(drop_id)
+        if selected_drop is not None:
 
-        # Checks if selected drop is owned or subscribed.
-        if is_in_drop_list(drop_id, owned_drops):
-            permission = "owned"
-        else:
-            permission = "subscribed"
+            if is_in_drop_list(drop_id, owned_drops):
+                permission = "owned"
+            else:
+                permission = "subscribed"
 
-        # Check if new version can be created
-        version_update = selected_drop.get('new_version')
-        if version_update and is_in_drop_list(drop_id, owned_drops):
-            new_ver = True
-            flash('NEW VERSION can be made. Select NEW VERSION.')
+            # Check if new version can be created
+            version_update = selected_drop.get('new_version')
+            if version_update and is_in_drop_list(drop_id, owned_drops):
+                new_ver = True
+                flash('NEW VERSION can be made. Select NEW VERSION.')
 
     performed_action = []  # REMOVE WHEN BACKEND COMMUNICATION IS ADDED
 
@@ -490,6 +492,20 @@ def show_drops(drop_id=None, message=None):
         if request.form.get('type') == 'open_file':
             open_file_location('PUT PROPER LOCATION HERE')
 
+    # Directory Stepping
+    folders = []
+    if current_path:
+        try:
+            with scandir('/' + current_path) as entries:
+                for entry in entries:
+                    if not entry.is_file() and entry.name[0] != '.':
+                        folders.append(entry.name)
+        except Exception as e:
+            flash(e)
+            folders = []
+    else:
+        current_path = home_path
+
     if not testing:
         return render_template(
             'show_drops.html',
@@ -500,6 +516,8 @@ def show_drops(drop_id=None, message=None):
             selec_act=curr_action,
             new_version=new_ver,
             permission=permission,
+            directory=current_path,
+            directory_folders=folders,
         )
     else:
         return {
