@@ -1,5 +1,5 @@
 ## The following requirements were added by pip freeze:
--e git+https://github.com/5yncr/backend@msaster#egg=5yncr_Backend
+-e git+https://github.com/5yncr/backend@master#egg=5yncr_Backend
 aiofiles==0.3.2
 alabaster==0.7.10
 asn1crypto==0.24.0
