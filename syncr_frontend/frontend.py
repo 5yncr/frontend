@@ -430,16 +430,24 @@ def show_drops(drop_id=None, message=None, current_path=None):
     global testing
 
     drop_tups = get_owned_subscribed_drops()
-    owned_drops = drop_tups[0]
-    subscribed_drops = drop_tups[1]
+    if drop_tups is not None:
+        owned_drops = drop_tups[0]
+        subscribed_drops = drop_tups[1]
+    else:
+        owned_drops = []
+        subscribed_drops = []
 
     selected_drop = []
     new_ver = None
     permission = None
 
+    file_status = {}
+    added = []
+
     if drop_id is not None:
 
-        selected_drop = get_selected_drop(drop_id)
+        selected_drop_info = get_selected_drop(drop_id) or {}
+        selected_drop = selected_drop_info.get('drop')
         if selected_drop is not None:
 
             if is_in_drop_list(drop_id, owned_drops):
@@ -448,7 +456,19 @@ def show_drops(drop_id=None, message=None, current_path=None):
                 permission = "subscribed"
 
             # Check if new version can be created
-            version_update = selected_drop.get('new_version')
+            print(selected_drop)
+            pending_changes = selected_drop_info.get('pending_changes', {})
+            added = pending_changes.get('added', [])
+            removed = pending_changes.get('removed', [])
+            changed = pending_changes.get('changed', [])
+            unchanged = pending_changes.get('unchanged', [])
+            for f in removed:
+                file_status[f] = 'removed'
+            for f in changed:
+                file_status[f] = 'changed'
+            for f in unchanged:
+                file_status[f] = 'unchanged'
+            version_update = any([added, removed, changed])
             if version_update and is_in_drop_list(drop_id, owned_drops):
                 new_ver = True
                 flash('NEW VERSION can be made. Select NEW VERSION.')
@@ -491,6 +511,8 @@ def show_drops(drop_id=None, message=None, current_path=None):
             permission=permission,
             directory=current_path,
             directory_folders=folders,
+            file_status=file_status,
+            added=added,
         )
     else:
         return {
