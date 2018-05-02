@@ -466,7 +466,6 @@ def show_drop(drop_id=None, message=None, current_path=None):
         else:
             selected_drop_info = get_pending_changes(drop_id) or {}
         selected_drop = selected_drop_info.get('drop')
-        print(selected_drop_info.get('pending_changes'))
         if selected_drop is not None:
 
             if is_in_drop_list(drop_id, owned_drops):
