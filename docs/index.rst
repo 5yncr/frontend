@@ -9,7 +9,8 @@ backend.
 
 Usage
 -----
-After installing 5yncr-Tracker and it's dependencies, do:
+After installing 5yncr-Tracker and it's dependencies, and running the backend,
+do:
 
 .. code-block:: bash
 
