@@ -48,7 +48,6 @@ def open_file_location(file_path):
     Opens the location of the file
 
     :param file_path: Path of the file on computer
-    :return: opens location of file
     """
     # Placeholder until backend communication is set-up
     file_path = path.dirname(path.abspath(__file__))
@@ -169,7 +168,6 @@ def set_curr_action(action_update):
     button
 
     :param action_update: name of action
-    :return: none
     """
 
     global curr_action
@@ -216,9 +214,7 @@ def subscribe_to_drop_with_directory(drop_path):
     """
     Given a directory, requests user to provide drop code
     for a drop to subscribed to and then save in that location
-    :return:
     """
-    print('GOT HERE')
     set_curr_action('subscribe_to_drop_name')
 
     return show_drop(
@@ -274,9 +270,6 @@ def input_drop_to_subscribe(drop_code=None, drop_path=None):
     else:
         result = drop_code
         path = drop_path
-
-    print(result)
-    print(path)
 
     message = {
         'action': 'input_drop_to_subscribe',
