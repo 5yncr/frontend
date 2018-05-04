@@ -15,7 +15,7 @@
 
     <h1 class=drop-type>Subscribed Drops</h1>
     <ul class=drops>
-        {% if drop %}
+        {% if subscribed %}
         {% for drop in subscribed %}
             <li><a href="{{ url_for('show_drops', drop_id=drop.drop_id) }}"><h2 class=drop-name>{{ drop.name|safe }}</h2></a>
         {% else %}
