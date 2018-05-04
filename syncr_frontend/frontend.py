@@ -462,7 +462,7 @@ def startup():
     return show_drop(None, None)
 
 
-@app.route('/<drop_id>', methods=['GET', 'POST'])
+@app.route('/drop/<drop_id>', methods=['GET', 'POST'])
 def show_drops(drop_id=None, message=None, current_path=None):
     set_curr_action(None)
     return show_drop(drop_id, message, current_path)
