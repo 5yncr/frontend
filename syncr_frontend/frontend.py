@@ -39,6 +39,8 @@ def send_message(message):
     :return: response from server
     """
 
+    message['action'] = str(message['action'])
+
     response = send_request(message)
 
     return response
