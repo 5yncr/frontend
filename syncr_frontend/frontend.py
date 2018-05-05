@@ -514,6 +514,7 @@ def show_drop(drop_id=None, message=None, current_path=None):
     file_status = {}
     remote_file_status = {}
     added = []
+    remote_added = []
 
     if drop_id is not None:
 
@@ -551,16 +552,16 @@ def show_drop(drop_id=None, message=None, current_path=None):
                 'remote_pending_changes', {},
             )
             remote_added = remote_pending_changes.get('added', [])
-            removed = remote_pending_changes.get('removed', [])
-            changed = remote_pending_changes.get('changed', [])
-            unchanged = remote_pending_changes.get('unchanged', [])
-            for f in removed:
+            remote_removed = remote_pending_changes.get('removed', [])
+            remote_changed = remote_pending_changes.get('changed', [])
+            remote_unchanged = remote_pending_changes.get('unchanged', [])
+            for f in remote_removed:
                 remote_file_status[f] = 'removed'
-            for f in changed:
+            for f in remote_changed:
                 remote_file_status[f] = 'changed'
-            for f in unchanged:
+            for f in remote_unchanged:
                 remote_file_status[f] = 'unchanged'
-            remote_update = any([added, removed, changed])
+            remote_update = any([remote_added, remote_removed, remote_changed])
             if remote_update:
                 new_updates = True
                 flash('Remote updates available. Select DOWNLOAD UPDATES.')
