@@ -7,6 +7,7 @@ from flask import flash
 from flask import Flask
 from flask import render_template
 from flask import request
+from syncr_backend.constants import FrontendAction
 
 from .communication import send_request
 
@@ -67,7 +68,7 @@ def get_owned_subscribed_drops():
             subscribed drop dict)
     """
     message = {
-        'action': 'get_owned_subscribed_drops',
+        'action': FrontendAction.GET_OWNED_SUBSCRIBED_DROPS,
     }
 
     response = send_message(message)
@@ -83,7 +84,7 @@ def get_selected_drop(drop_id):
     """
     message = {
         'drop_id': drop_id,
-        'action': 'get_selected_drop',
+        'action': FrontendAction.GET_SELECTED_DROP,
     }
 
     response = send_message(message)
@@ -96,7 +97,7 @@ def get_selected_drop(drop_id):
 def get_pending_changes(drop_id):
     message = {
         'drop_id': drop_id,
-        'action': 'get_pending_changes',
+        'action': FrontendAction.GET_PENDING_CHANGES,
     }
 
     response = send_message(message)
@@ -238,7 +239,7 @@ def initialize_drop(drop_path):
         has_response = False
     else:
         message = {
-            'action': 'initialize_drop',
+            'action': FrontendAction.INITIALIZE_DROP,
             'directory': '/' + drop_path,
         }
         has_response = True
@@ -272,7 +273,7 @@ def input_drop_to_subscribe(drop_code=None, drop_path=None):
         path = drop_path
 
     message = {
-        'action': 'input_drop_to_subscribe',
+        'action': FrontendAction.INPUT_DROP_TO_SUBSCRIBE_TO,
         'drop_id': result,
         'directory': '/' + path,
     }
@@ -320,7 +321,7 @@ def add_owner(drop_id, owner_id=None):
     message = {
         'drop_id': drop_id,
         'owner_id': new_owner_id,
-        'action': 'add_owner',
+        'action': FrontendAction.ADD_OWNER,
     }
 
     response = send_message(message)
@@ -344,7 +345,7 @@ def remove_owner(drop_id, owner_id):
     message = {
         'drop_id': drop_id,
         'owner_id': owner_id,
-        'action': 'remove_owner',
+        'action': FrontendAction.REMOVE_OWNER,
     }
 
     response = send_message(message)
@@ -395,7 +396,7 @@ def delete_drop(drop_id):
 
     message = {
         'drop_id': drop_id,
-        'action': 'delete_drop',
+        'action': FrontendAction.DELETE_DROP,
     }
 
     response = send_message(message)
@@ -418,7 +419,7 @@ def unsubscribe(drop_id):
     set_curr_action('unsubscribe')
     message = {
         'drop_id': drop_id,
-        'action': 'unsubscribe',
+        'action': FrontendAction.UNSUBSCRIBE,
     }
     response = send_message(message)
     result = response.get('message')
@@ -440,7 +441,7 @@ def new_version(drop_id):
     """
 
     message = {
-        'action': 'new_version',
+        'action': FrontendAction.NEW_VERSION,
         'drop_id': drop_id,
     }
 
@@ -463,7 +464,7 @@ def sync_update(drop_id):
     """
 
     message = {
-        'action': 'sync_updates',
+        'action': FrontendAction.SYNC_UPDATE,
         'drop_id': drop_id,
     }
 
