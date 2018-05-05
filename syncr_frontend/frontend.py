@@ -452,6 +452,29 @@ def new_version(drop_id):
     )
 
 
+@app.route('/sync_update/<drop_id>')
+def sync_update(drop_id):
+    """
+    Tells backend to sync updates from
+    changed remote files
+
+    :param drop_id: drop to sync updates for
+    :return: renders web page based off backend response
+    """
+
+    message = {
+        'action': 'sync_updates',
+        'drop_id': drop_id,
+    }
+
+    response = send_message(message)
+
+    return show_drop(
+        response.get('drop_id'),
+        response.get('message'),
+    )
+
+
 @app.route('/')
 def startup():
     set_curr_action(None)
@@ -485,9 +508,11 @@ def show_drop(drop_id=None, message=None, current_path=None):
 
     selected_drop = []
     new_ver = None
+    new_updates = None
     permission = None
 
     file_status = {}
+    remote_file_status = {}
     added = []
 
     if drop_id is not None:
@@ -519,7 +544,26 @@ def show_drop(drop_id=None, message=None, current_path=None):
             version_update = any([added, removed, changed])
             if version_update and is_in_drop_list(drop_id, owned_drops):
                 new_ver = True
-                flash('NEW VERSION can be made. Select NEW VERSION.')
+                flash('Local changes present. Select NEW VERSION.')
+
+            # Check if new updates are available
+            remote_pending_changes = selected_drop_info.get(
+                'remote_pending_changes', {},
+            )
+            added = remote_pending_changes.get('added', [])
+            removed = remote_pending_changes.get('removed', [])
+            changed = remote_pending_changes.get('changed', [])
+            unchanged = remote_pending_changes.get('unchanged', [])
+            for f in removed:
+                remote_file_status[f] = 'removed'
+            for f in changed:
+                remote_file_status[f] = 'changed'
+            for f in unchanged:
+                remote_file_status[f] = 'unchanged'
+            remote_update = any([added, removed, changed])
+            if remote_update:
+                new_updates = True
+                flash('Remote updates available. Select DOWNLOAD UPDATES.')
 
     performed_action = []  # REMOVE WHEN BACKEND COMMUNICATION IS ADDED
 
@@ -556,10 +600,12 @@ def show_drop(drop_id=None, message=None, current_path=None):
             action=performed_action,
             selec_act=curr_action,
             new_version=new_ver,
+            new_updates=new_updates,
             permission=permission,
             directory=current_path,
             directory_folders=folders,
             file_status=file_status,
+            remote_file_status=remote_file_status,
             added=added,
         )
     else:

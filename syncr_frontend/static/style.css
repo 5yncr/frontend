@@ -18,6 +18,10 @@ h2 {
     font-size : 1.2em;
 }
 
+.file-column-descriptors {
+  text-decoration: underline;
+}
+
 .dark-info {
     background-color:gainsboro;
 }
