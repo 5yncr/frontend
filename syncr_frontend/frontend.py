@@ -550,7 +550,7 @@ def show_drop(drop_id=None, message=None, current_path=None):
             remote_pending_changes = selected_drop_info.get(
                 'remote_pending_changes', {},
             )
-            added = remote_pending_changes.get('added', [])
+            remote_added = remote_pending_changes.get('added', [])
             removed = remote_pending_changes.get('removed', [])
             changed = remote_pending_changes.get('changed', [])
             unchanged = remote_pending_changes.get('unchanged', [])
@@ -607,6 +607,7 @@ def show_drop(drop_id=None, message=None, current_path=None):
             file_status=file_status,
             remote_file_status=remote_file_status,
             added=added,
+            remote_added=remote_added,
         )
     else:
         return {

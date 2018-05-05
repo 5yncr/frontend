@@ -173,8 +173,16 @@
       {% for name in added %}
         <tr class=file-info-row>
           <th class=file-name>{{ name|safe }}</th>
-          <th class=file_status>added</th>
+          <th class=file_status></th>
           <th class=file-status>added</th>
+          <th class=file-percent>0%</th>
+        </tr>
+      {% endfor %}
+      {% for name in remote_added %}
+        <tr class=file-info-row>
+          <th class=file-name>{{ name|safe }}</th>
+          <th class=file_status>added</th>
+          <th class=file-status></th>
           <th class=file-percent>0%</th>
         </tr>
       {% endfor %}
