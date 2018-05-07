@@ -4,7 +4,7 @@
 <div >
     <h1 class=drop-type>Owned Drops</h1>
     <ul class=drops>
-        {% if owned %}
+        {% if owned is defined %}
         {% for drop in owned %}
             <li><a href="{{ url_for('show_drops', drop_id=drop.drop_id) }}"><h2 class=drop-name>{{ drop.name|safe }}</h2></a>
         {% else %}
@@ -15,7 +15,7 @@
 
     <h1 class=drop-type>Subscribed Drops</h1>
     <ul class=drops>
-        {% if subscribed %}
+        {% if subscribed is defined %}
         {% for drop in subscribed %}
             <li><a href="{{ url_for('show_drops', drop_id=drop.drop_id) }}"><h2 class=drop-name>{{ drop.name|safe }}</h2></a>
         {% else %}
@@ -37,6 +37,9 @@
 {% block toolbar %}
 {% if selected and permission == "owned" %}
   <div class="btn-group">
+    {% if new_updates %}
+    <a href="{{ url_for('sync_update', drop_id=selected.drop_id) }}"><button>Download Updates</button></a>
+    {% endif %}
     {% if new_version %}
     <a href="{{ url_for('new_version', drop_id=selected.drop_id) }}"><button>New Version</button></a>
     {% endif %}
@@ -51,9 +54,12 @@
   </div>
 {% elif selected and permission == "subscribed" %}
   <div class="btn-group">
+    {% if new_updates %}
+    <a href="{{ url_for('sync_update', drop_id=selected.drop_id) }}"><button>Download Updates</button></a>
+    {% endif %}
     <a href="{{ url_for('share_drop', drop_id=selected.drop_id) }}"><button>Share</button></a>
     <a href="{{ url_for('unsubscribe', drop_id=selected.drop_id) }}"><button>Unsubscribe</button></a>
-    <a href="{{ url_for('delete_drop', drop_id=selected.drop_id) }}"><button>Delete Drop</button></a>
+    <a href="{{ url_for('delete_drop', drop_id=selected.drop_id) }}" onclick="confirmDeleteDrop()"><button>Delete Drop</button></a>
   </div>
 {% endif %}
 {% endblock %}
@@ -150,9 +156,16 @@
     <b> {{ selected.name|safe }}. {{ action.description|safe }} <b>
     <hr>
     <table class=file-table>
+      <tr class=file-column-descriptors>
+        <th class=file-name>File Name</th>
+        <th class=remote-file-status>Remote Status</th>
+        <th class=file-status>Local Status</th>
+        <th class=file-percent>Percent</th>
+      </tr>
       {% for name, percent in selected.files.items() %}
         <tr class=file-info-row>
           <th class=file-name>{{ name|safe }}</th>
+          <th class=remote-file-status>{{ remote_file_status.get(name)|safe }}</th>
           <th class=file-status>{{ file_status.get(name)|safe }}</th>
           <th class=file-percent>{{ percent|safe }}%</th>
         </tr>
@@ -160,7 +173,16 @@
       {% for name in added %}
         <tr class=file-info-row>
           <th class=file-name>{{ name|safe }}</th>
+          <th class=remote-file-status></th>
           <th class=file-status>added</th>
+          <th class=file-percent>0%</th>
+        </tr>
+      {% endfor %}
+      {% for name in remote_added %}
+        <tr class=file-info-row>
+          <th class=file-name>{{ name|safe }}</th>
+          <th class=remote-file-status>added</th>
+          <th class=file-status></th>
           <th class=file-percent>0%</th>
         </tr>
       {% endfor %}
