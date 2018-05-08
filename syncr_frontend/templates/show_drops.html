@@ -30,6 +30,11 @@
 <div class="btn-group">
   <a href="{{ url_for('create_drop', current_path=directory) }}"><button>Create Drop</button></a>
   <a href="{{ url_for('subscribe_to_drop', current_path=directory) }}"><button>Subscribe to Drop</button></a>
+  {% if selected %}
+  <a href="{{ url_for('get_node_id', drop_id=selected.drop_id) }}"><button>Get ID</button></a>
+  {% else %}
+  <a href="{{ url_for('get_node_id') }}"><button>Get ID</button></a>
+  {% endif %}
 </div>
 {% endblock %}
 
@@ -67,7 +72,7 @@
 
 {% block body %}
 {% if selected and selec_act == "owners" %}
-    Owners of drop {{ selected.name|safe }}:
+    <h1 class=drop-type>Owners of drop {{ selected.name|safe }}:</h1>
     <table class=file-table>
     <tr class=file-info-row>
         <th class=file-name>{{ selected.primary_owner|safe }}</th>
@@ -82,7 +87,7 @@
           <div class=file-action-container>
             <div class=file-action-button-container>
               <div class=file-action-button-container>
-                    <form method="GET" action="{{ url_for('remove_owner', drop_id=selected.drop_id, owner_id=owner) }}">
+                    <form method="POST" action="{{ url_for('remove_owner', drop_id=selected.drop_id, owner_id=owner) }}">
                         <input class=file-action-button type='submit' value='remove' />
                     </form>
                 </div>
@@ -92,21 +97,10 @@
       </tr>
     {% endfor %}
     </table>
-    <form method="GET" action="{{ url_for('add_owner', drop_id=selected.drop_id) }}">
+    <form method="POST" action="{{ url_for('add_owner', drop_id=selected.drop_id) }}">
         Owner ID: <input type='text' name='owner_id' />
         <input class=file-action-button type='submit' value='Add Owner' />
     </form>
-{% elif selected and selec_act == "share drop" %}
-  <center>
-    <p>
-      <strong>
-        To share, send the following Drop ID to your friends: {{ selected.drop_id | safe }}
-      </strong>
-      <br><br>
-      Please note, 5yncr does not provide any functionality to send this ID to others. <br>
-      This must be done via email, word-of-mouth, messaging software, etc. <br>
-    </p>
-  </center>
 {% elif selec_act == "create_drop" %}
     <b>Current Directory for New Drop:<b>
     <div class=file-action-container>
@@ -153,8 +147,7 @@
       </form>
     </div>
 {% elif selected %}
-    <b> {{ selected.name|safe }}. {{ action.description|safe }} <b>
-    <hr>
+    <h1 class=drop-type>{{ selected.name|safe }}</h1>
     <table class=file-table>
       <tr class=file-column-descriptors>
         <th class=file-name>File Name</th>
@@ -188,6 +181,6 @@
       {% endfor %}
     </table>
 {% else %}
-    No Drop Selected {{ action.description|safe }}
+    No Drop Selected
 {% endif %}
 {% endblock %}

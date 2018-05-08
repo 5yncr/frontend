@@ -234,25 +234,25 @@ def initialize_drop(drop_path):
 
     :return: Message sent back to frontend.
     """
-    response = ''
+
+    set_curr_action(None)
 
     if drop_path is None:
-        flash('Cannot create drop. No directory was selected.')
-        has_response = False
+        message = 'Cannot create drop. No directory was selected.'
     else:
         message = {
             'action': FrontendAction.INITIALIZE_DROP,
             'directory': '/' + drop_path,
         }
-        has_response = True
+
         response = send_message(message)
-
-    if has_response:
         message = response.get('message')
-    else:
-        message = None
 
-    set_curr_action(None)
+        if response.get('success'):
+            return show_drop(
+                response.get('drop_id'),
+                message,
+            )
 
     return show_drop(
         None,
@@ -281,8 +281,8 @@ def input_drop_to_subscribe(drop_code=None, drop_path=None):
     }
 
     response = send_message(message)
-    return show_drop(
-        None,
+    return show_drops(
+        result,
         response.get('message'),
     )
 
@@ -290,17 +290,14 @@ def input_drop_to_subscribe(drop_code=None, drop_path=None):
 @app.route('/share_drop/<drop_id>')
 def share_drop(drop_id):
     """
-    Sends 'share drop' message to backend
+    Displays drop ID to user for sharing purposes
 
-    :param drop_id: Drop to be shared
-    :return: backend sends back message with info to share drop
+    :param drop_id: Drop ID to be shared
     """
 
-    set_curr_action('share drop')
+    download_code = "Download Code: " + drop_id
 
-    flash("Download Code: " + drop_id)
-
-    return show_drops(drop_id, None)
+    return show_drop(drop_id, download_code)
 
 
 @app.route('/view_owners/<drop_id>/add/', methods=['GET', 'POST'])
@@ -309,7 +306,7 @@ def add_owner(drop_id, owner_id=None):
     Communicate with backend to add an owner to specified drop
 
     :param drop_id: ID of drop
-    :return: display updated owners body of page
+    :param owner_id: ID of owner
     """
     if owner_id is None:
         if request.method == 'POST':
@@ -327,21 +324,23 @@ def add_owner(drop_id, owner_id=None):
     }
 
     response = send_message(message)
+    message = response.get('message')
 
-    if response.get("Success") is False:
-        return view_owners(drop_id, response.get('message'))
+    if response.get('success'):
+        message = 'Successfully added owner'
+    else:
+        message = 'Error adding new owner'
 
-    return view_owners(drop_id)
+    return view_owners(drop_id, message)
 
 
-@app.route('/view_owners/<drop_id>/remove/<owner_id>')
+@app.route('/view_owners/<drop_id>/remove/<owner_id>', methods=['POST'])
 def remove_owner(drop_id, owner_id):
     """
     Communicate with backend to remove an owner from specified drop
 
     :param drop_id: ID of drop
     :param owner_id: ID of owner to remove from drop
-    :return: display updated owners body of page
     """
 
     message = {
@@ -351,11 +350,14 @@ def remove_owner(drop_id, owner_id):
     }
 
     response = send_message(message)
+    message = response.get('message')
 
-    if response.get("Success") is False:
-        return view_owners(drop_id, response.get('message'))
+    if response.get('success'):
+        message = 'Successfully removed owner'
+    else:
+        message = 'Error removing owner'
 
-    return view_owners(drop_id)
+    return view_owners(drop_id, message)
 
 
 @app.route('/view_owners/<drop_id>')
@@ -365,20 +367,19 @@ def view_owners(drop_id, message=None):
 
     :param drop_id: ID of drop to view owners
     :param message: message from owner action if any
-    :return: display owners on body of page
     """
     set_curr_action('owners')
 
     return show_drop(drop_id, message)
 
 
+# TODO: Implement this feature
 @app.route('/whitelist/<drop_id>')
 def whitelist(drop_id):
     """
     Communicate with backend to whitelist node
 
     :param drop_id: ID of drop where node is whitelisted
-    :return: Display prompt on page to whitelist node
     """
     set_curr_action('whitelist')
 
@@ -402,11 +403,12 @@ def delete_drop(drop_id):
     }
 
     response = send_message(message)
+    result = response.get('message')
 
-    return show_drop(
-        response.get('drop_id'),
-        response.get('message'),
-    )
+    if response.get('success') is True:
+        return show_drop(None, result)
+    else:
+        return show_drop(drop_id, result)
 
 
 @app.route('/unsubscribe/<drop_id>')
@@ -419,10 +421,12 @@ def unsubscribe(drop_id):
     """
 
     set_curr_action('unsubscribe')
+
     message = {
         'drop_id': drop_id,
         'action': FrontendAction.UNSUBSCRIBE,
     }
+
     response = send_message(message)
     result = response.get('message')
 
@@ -450,7 +454,7 @@ def new_version(drop_id):
     response = send_message(message)
 
     return show_drop(
-        response.get('drop_id'),
+        drop_id,
         response.get('message'),
     )
 
@@ -471,10 +475,33 @@ def sync_update(drop_id):
     }
 
     response = send_message(message)
+    message = response.get('message')
 
     return show_drop(
-        response.get('drop_id'),
-        response.get('message'),
+        drop_id,
+        message,
+    )
+
+
+@app.route('/get_ID/', defaults={'drop_id': None})
+@app.route('/get_ID/drop/<drop_id>')
+def get_node_id(drop_id=None):
+    """
+    Requests current node id from backend
+    :param drop_id: id for currently viewed drop
+    :return: node id
+    """
+
+    message = {
+        'action': FrontendAction.GET_PUBLIC_KEY,
+    }
+
+    response = send_message(message)
+    message = response.get('message')
+
+    return show_drop(
+        drop_id,
+        message,
     )
 
 
@@ -569,10 +596,7 @@ def show_drop(drop_id=None, message=None, current_path=None):
                 new_updates = True
                 flash('Remote updates available. Select DOWNLOAD UPDATES.')
 
-    performed_action = []  # REMOVE WHEN BACKEND COMMUNICATION IS ADDED
-
     if message is not None:
-        performed_action = {'description': message}
         if not testing:
             flash(message)
 
@@ -601,7 +625,6 @@ def show_drop(drop_id=None, message=None, current_path=None):
             selected=selected_drop,
             subscribed=subscribed_drops,
             owned=owned_drops,
-            action=performed_action,
             selec_act=curr_action,
             new_version=new_ver,
             new_updates=new_updates,
@@ -618,7 +641,6 @@ def show_drop(drop_id=None, message=None, current_path=None):
             'selected_drop': selected_drop,
             'subscribed_drops': subscribed_drops,
             'owned_drops': owned_drops,
-            'performed_action': performed_action,
             'curr_action': curr_action,
             'new_version': new_ver,
             'permission': permission,
