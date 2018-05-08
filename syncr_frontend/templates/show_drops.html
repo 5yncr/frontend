@@ -30,6 +30,11 @@
 <div class="btn-group">
   <a href="{{ url_for('create_drop', current_path=directory) }}"><button>Create Drop</button></a>
   <a href="{{ url_for('subscribe_to_drop', current_path=directory) }}"><button>Subscribe to Drop</button></a>
+  {% if selected %}
+  <a href="{{ url_for('get_node_id', drop_id=selected.drop_id) }}"><button>Get ID</button></a>
+  {% else %}
+  <a href="{{ url_for('get_node_id') }}"><button>Get ID</button></a>
+  {% endif %}
 </div>
 {% endblock %}
 

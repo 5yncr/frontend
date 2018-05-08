@@ -325,7 +325,11 @@ def add_owner(drop_id, owner_id=None):
 
     response = send_message(message)
     message = response.get('message')
-    print(message)
+
+    if response.get('success'):
+        message = 'Successfully added owner'
+    else:
+        message = 'Error adding new owner'
 
     return view_owners(drop_id, message)
 
@@ -347,6 +351,11 @@ def remove_owner(drop_id, owner_id):
 
     response = send_message(message)
     message = response.get('message')
+
+    if response.get('success'):
+        message = 'Successfully removed owner'
+    else:
+        message = 'Error removing owner'
 
     return view_owners(drop_id, message)
 
@@ -463,6 +472,28 @@ def sync_update(drop_id):
     message = {
         'action': FrontendAction.SYNC_UPDATE,
         'drop_id': drop_id,
+    }
+
+    response = send_message(message)
+    message = response.get('message')
+
+    return show_drop(
+        drop_id,
+        message,
+    )
+
+
+@app.route('/get_ID/', defaults={'drop_id': None})
+@app.route('/get_ID/drop/<drop_id>')
+def get_node_id(drop_id=None):
+    """
+    Requests current node id from backend
+    :param drop_id: id for currently viewed drop
+    :return: node id
+    """
+
+    message = {
+        'action': FrontendAction.GET_PUBLIC_KEY,
     }
 
     response = send_message(message)
