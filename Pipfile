@@ -1,0 +1,30 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+"5yncr_Backend" = {git = "https://github.com/5yncr/backend", ref = "master"}
+"bencode.py" = "*"
+pytz = "*"
+Flask = "*"
+"Jinja2" = "*"
+
+[dev-packages]
+pre_commit = "*"
+RinohType = "*"
+Sphinx = "*"
+sphinx_rtd_theme = "*"
+sphinxcontrib-autoprogram = "*"
+sphinxcontrib-websupport = "*"
+tox = "*"
+docutils = "*"
+flake8 = "*"
+pycodestyle = "*"
+pytest = "*"
+pydocstyle = "*"
+pipenv = "*"
+validatedoc = "*"
+
+[requires]
+python_version = "3.6"

@@ -1,4 +1,4 @@
-"""Frontend Constants"""
+"""Frontend Constants."""
 # Communication Constants
 TIMEOUT = 150
 UNIX_ADDRESS = './unix_socket'
