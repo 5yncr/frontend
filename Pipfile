@@ -24,6 +24,7 @@ pytest = "*"
 pydocstyle = "*"
 pipenv = "*"
 validatedoc = "*"
+mypy = "*"
 
 [requires]
 python_version = "3.6"

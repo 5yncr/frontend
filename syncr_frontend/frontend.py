@@ -1,6 +1,11 @@
 """Main implementation of syncr's frontend."""
 from os import path
 from os import scandir
+from typing import Any
+from typing import cast
+from typing import Dict
+from typing import List  # noqa
+from typing import Optional
 
 from quart import flash
 from quart import Quart
@@ -25,7 +30,7 @@ home_path = path.expanduser('~')[1:]
 # Backend Access Functions
 
 
-def send_message(message):
+def send_message(message: Dict[str, Any]) -> Dict[str, Any]:
     """
     Send message to backend and wait for a response or until TIMEOUT.
 
@@ -39,7 +44,7 @@ def send_message(message):
     return response
 
 
-def get_owned_subscribed_drops():
+def get_owned_subscribed_drops() -> List[List[Dict[str, Any]]]:
     """
     Get a tuple of owned drops and subscribed drops.
 
@@ -52,11 +57,14 @@ def get_owned_subscribed_drops():
 
     response = send_message(message)
 
-    return response.get('requested_drops_tuple')
+    return cast(
+        List[List[Dict[str, Any]]],
+        response.get('requested_drops_tuple'),
+    )
 
 
 # Return dictionary for selected drop
-def get_selected_drop(drop_id):
+def get_selected_drop(drop_id: str) -> Dict[str, Any]:
     """
     Get a drop's infromation.
 
@@ -71,11 +79,12 @@ def get_selected_drop(drop_id):
     response = send_message(message)
 
     drop = response.get('requested_drops')
+    drop = cast(Dict[str, Any], drop)
 
     return drop
 
 
-def get_pending_changes(drop_id):
+def get_pending_changes(drop_id: str) -> Dict[str, Any]:
     """Get information about a drop, including pending changes.
 
     :param drop_id: The drop id
@@ -89,11 +98,12 @@ def get_pending_changes(drop_id):
     response = send_message(message)
 
     drop = response.get('requested_drops')
+    drop = cast(Dict[str, Any], drop)
 
     return drop
 
 
-def is_in_drop_list(drop_id, drop_list):
+def is_in_drop_list(drop_id: str, drop_list: List[Dict[str, Any]]) -> bool:
     """
     Figure out if a drop is in a list of drops.
 
@@ -112,46 +122,8 @@ def is_in_drop_list(drop_id, drop_list):
     return in_list
 
 
-def get_drop_id(file_path):
-    """
-    Get drop id from file path.
-
-    :param file_path: File path that contains drop ID
-    :return: drop ID
-    """
-    reached_slash = False
-    drop_string = ''
-
-    for letter in file_path:
-        if not reached_slash:
-            if letter == '/':
-                reached_slash = True
-            else:
-                drop_string = drop_string + letter
-
-    return drop_string
-
-
-def get_file_name(file_path):
-    """
-    Get file name from file path.
-
-    :param file_path: File path that contains file name
-    :return: file name
-    """
-    file_name = ''
-
-    for letter in file_path:
-        if letter == '/':
-            file_name = ''
-        else:
-            file_name = file_name + letter
-
-    return file_name
-
-
 @app.route('/create_drop/<path:current_path>')
-async def create_drop(current_path):
+async def create_drop(current_path: str) -> str:
     """
     Provide the UI with the prompt to create a drop.
 
@@ -167,7 +139,7 @@ async def create_drop(current_path):
 
 
 @app.route('/subscribe_to_drop/<path:current_path>')
-async def subscribe_to_drop(current_path):
+async def subscribe_to_drop(current_path: str) -> str:
     """
     Provide the UI with the prompt to subscribe to a drop.
 
@@ -183,7 +155,7 @@ async def subscribe_to_drop(current_path):
 
 
 @app.route('/subscribe_to_drop_with_directory/<path:drop_path>')
-async def subscribe_to_drop_with_directory(drop_path):
+async def subscribe_to_drop_with_directory(drop_path: str) -> str:
     """
     Request user to provide drop code for a drop to subscribed to.
 
@@ -201,7 +173,7 @@ async def subscribe_to_drop_with_directory(drop_path):
 
 
 @app.route('/initialize_drop/<path:drop_path>')
-async def initialize_drop(drop_path):
+async def initialize_drop(drop_path: str) -> str:
     """
     Create a drop from a path.
 
@@ -209,7 +181,7 @@ async def initialize_drop(drop_path):
     :return: Message sent back to frontend.
     """
     if drop_path is None:
-        message = 'Cannot create drop. No directory was selected.'
+        resp_message = 'Cannot create drop. No directory was selected.'
     else:
         message = {
             'action': FrontendAction.INITIALIZE_DROP,
@@ -217,22 +189,24 @@ async def initialize_drop(drop_path):
         }
 
         response = send_message(message)
-        message = response.get('message')
+        resp_message = response.get('message')
 
         if response.get('success'):
             return await show_drop(
                 response.get('drop_id'),
-                message,
+                resp_message,
             )
 
     return await show_drop(
         None,
-        message,
+        resp_message,
     )
 
 
 @app.route('/subscribe', methods=['POST'])
-async def input_drop_to_subscribe(drop_code=None, drop_path=None):
+async def input_drop_to_subscribe(
+    drop_code: Optional[str]=None, drop_path: Optional[str]=None,
+) -> str:
     """
     Subscribe to a drop.
 
@@ -261,7 +235,7 @@ async def input_drop_to_subscribe(drop_code=None, drop_path=None):
 
 
 @app.route('/share_drop/<drop_id>')
-async def share_drop(drop_id):
+async def share_drop(drop_id: str) -> str:
     """
     Display drop ID to user for sharing purposes.
 
@@ -274,7 +248,7 @@ async def share_drop(drop_id):
 
 
 @app.route('/view_owners/<drop_id>/add/', methods=['GET', 'POST'])
-async def add_owner(drop_id, owner_id=None):
+async def add_owner(drop_id: str, owner_id: Optional[str]=None) -> str:
     """
     Add an owner to specified drop.
 
@@ -298,18 +272,18 @@ async def add_owner(drop_id, owner_id=None):
     }
 
     response = send_message(message)
-    message = response.get('message')
+    resp_message = response.get('message')
 
     if response.get('success'):
-        message = 'Successfully added owner'
+        resp_message = 'Successfully added owner'
     else:
-        message = 'Error adding new owner'
+        resp_message = 'Error adding new owner'
 
-    return await view_owners(drop_id, message)
+    return await view_owners(drop_id, resp_message)
 
 
 @app.route('/view_owners/<drop_id>/remove/<owner_id>', methods=['POST'])
-async def remove_owner(drop_id, owner_id):
+async def remove_owner(drop_id: str, owner_id: str) -> str:
     """
     Remove an owner from specified drop.
 
@@ -324,18 +298,18 @@ async def remove_owner(drop_id, owner_id):
     }
 
     response = send_message(message)
-    message = response.get('message')
+    resp_message = response.get('message')
 
     if response.get('success'):
-        message = 'Successfully removed owner'
+        resp_message = 'Successfully removed owner'
     else:
-        message = 'Error removing owner'
+        resp_message = 'Error removing owner'
 
-    return await view_owners(drop_id, message)
+    return await view_owners(drop_id, resp_message)
 
 
 @app.route('/view_owners/<drop_id>')
-async def view_owners(drop_id, message=None):
+async def view_owners(drop_id: str, message: Optional[str]=None) -> str:
     """
     Update current action to display list of owners.
 
@@ -347,7 +321,7 @@ async def view_owners(drop_id, message=None):
 
 
 @app.route('/delete_drop/<drop_id>')
-async def delete_drop(drop_id):
+async def delete_drop(drop_id: str) -> str:
     """
     Send the 'delete drop' message to backend.
 
@@ -369,7 +343,7 @@ async def delete_drop(drop_id):
 
 
 @app.route('/unsubscribe/<drop_id>')
-async def unsubscribe(drop_id):
+async def unsubscribe(drop_id: str) -> str:
     """
     Unsubscribe from drop.
 
@@ -391,7 +365,7 @@ async def unsubscribe(drop_id):
 
 
 @app.route('/new_version/<drop_id>')
-async def new_version(drop_id):
+async def new_version(drop_id: str) -> str:
     """
     Tell backend to create new version from changed files for specified drop.
 
@@ -412,7 +386,7 @@ async def new_version(drop_id):
 
 
 @app.route('/sync_update/<drop_id>')
-async def sync_update(drop_id):
+async def sync_update(drop_id: str) -> str:
     """
     Tell backend to sync updates from changed remote files.
 
@@ -425,17 +399,17 @@ async def sync_update(drop_id):
     }
 
     response = send_message(message)
-    message = response.get('message')
+    resp_message = response.get('message')
 
     return await show_drop(
         drop_id,
-        message,
+        resp_message,
     )
 
 
 @app.route('/get_ID/', defaults={'drop_id': None})
 @app.route('/get_ID/drop/<drop_id>')
-async def get_node_id(drop_id=None):
+async def get_node_id(drop_id: Optional[str]=None) -> str:
     """
     Request current node id from backend.
 
@@ -447,16 +421,16 @@ async def get_node_id(drop_id=None):
     }
 
     response = send_message(message)
-    message = response.get('message')
+    resp_message = response.get('message')
 
     return await show_drop(
         drop_id,
-        message,
+        resp_message,
     )
 
 
 @app.route('/')
-async def startup():
+async def startup() -> str:
     """Show the main page.
 
     :return: The main page
@@ -465,7 +439,10 @@ async def startup():
 
 
 @app.route('/drop/<drop_id>', methods=['GET', 'POST'])
-async def show_drops(drop_id=None, message=None, current_path=None):
+async def show_drops(
+    drop_id: Optional[str]=None, message: Optional[str]=None,
+    current_path: Optional[str]=None,
+) -> str:
     """Show a drop with curr action as none.
 
     This causes show_drop to request pending changes as well.
@@ -479,8 +456,9 @@ async def show_drops(drop_id=None, message=None, current_path=None):
 
 
 async def show_drop(
-    drop_id=None, message=None, current_path=None, curr_action=None,
-):
+    drop_id: Optional[str]=None, message: Optional[str]=None,
+    current_path: Optional[str]=None, curr_action: Optional[str]=None,
+) -> str:
     """
     Show a drop.
 
@@ -498,15 +476,15 @@ async def show_drop(
         owned_drops = []
         subscribed_drops = []
 
-    selected_drop = []
+    selected_drop = []  # type: Optional[List[str]]
     new_ver = None
     new_updates = None
     permission = None
 
-    file_status = {}
-    remote_file_status = {}
-    added = []
-    remote_added = []
+    file_status = {}  # type: Dict[str, str]
+    remote_file_status = {}  # type: Dict[str, str]
+    added = []  # type: List[str]
+    remote_added = []  # type: List[str]
 
     if drop_id is not None:
 
@@ -572,7 +550,7 @@ async def show_drop(
                     if not entry.is_file() and entry.name[0] != '.':
                         folders.append(entry.name)
         except Exception as e:
-            await flash(e)
+            await flash("%s" % e)
             folders = []
     else:
         current_path = home_path

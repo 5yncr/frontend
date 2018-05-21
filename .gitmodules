@@ -1,0 +1,6 @@
+[submodule "3rd_party/quart"]
+	path = 3rd_party/quart
+	url = https://gitlab.com/pgjones/quart.git
+[submodule "3rd_party/backend"]
+	path = 3rd_party/backend
+	url = https://github.com/5yncr/backend
