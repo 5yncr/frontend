@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 "5yncr_Backend" = {git = "https://github.com/5yncr/backend", ref = "master"}
 "bencode.py" = "*"
-pytz = "*"
 Quart = "*"
 "Jinja2" = "*"
 

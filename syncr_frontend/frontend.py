@@ -11,7 +11,6 @@ from syncr_backend.constants import FrontendAction
 from syncr_frontend.communication import send_request
 
 app = Quart(__name__)  # create the application instance
-app.config.from_object(__name__)  # load config from this file , frontend.py
 
 # Load default config and override config from an environment variable
 app.config.update(dict(
@@ -353,7 +352,6 @@ async def delete_drop(drop_id):
     Send the 'delete drop' message to backend.
 
     :param drop_id: name of the drop to be deleted
-    :return: drop is removed from backend and frontend
     :return: Main page if it succeeded
     """
     message = {
@@ -474,7 +472,7 @@ async def show_drops(drop_id=None, message=None, current_path=None):
 
     :param drop_id: The drop id
     :param message: Message to show
-    :current_path: Current path in a subscribe/create action
+    :param current_path: Current path in a subscribe/create action
     :return: View drop page
     """
     return await show_drop(drop_id, message, current_path)

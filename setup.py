@@ -19,6 +19,11 @@ setup(
     },
     include_package_data=True,
     install_requires=[
-        'flask',
+        'quart',
+        'jinja2',
+        '5yncr_Backend',
+    ],
+    dependency_links=[
+        'git+https://github.com/5yncr/backend.git@master#egg=5yncr_Backend-0.0.1',  # noqa
     ],
 )

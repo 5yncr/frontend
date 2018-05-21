@@ -3,9 +3,12 @@
 5yncr frontend
 ==============
 
-The 5yncr frontend is simply a flask app.  It will automatically connect to the
-backend if the backend is running.  All the heavy lifting happens in the
+The 5yncr frontend is simply a flask [1]_ app.  It will automatically connect
+to the backend if the backend is running.  All the heavy lifting happens in the
 backend.
+
+.. [1] It's actually a quart app, which is a flask re-implementation that uses
+    python's asyncio.
 
 .. toctree::
     :maxdepth: 1

@@ -5,19 +5,19 @@ do:
 
 .. code-block:: bash
 
-    export FLASK_APP=syncr_frontend.frontend
-    flask run
+    export QUART_APP=syncr_frontend.frontend
+    quart run
 
 Or on Windows command prompt:
 
 .. code-block:: bat
 
-    set FLASK_APP=syncr_frontend.frontend
-    flask run
+    set QUART_APP=syncr_frontend.frontend
+    quart run
 
 Or on PowerShell:
 
 .. code-block:: powershell
 
-    $env:FLASK_APP = "syncr_frontend.frontend"
-    flask run
+    $env:QUART_APP = "syncr_frontend.frontend"
+    quart run
