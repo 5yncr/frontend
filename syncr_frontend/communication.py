@@ -1,8 +1,11 @@
+"""Communication helper functions."""
 import os
 import platform
 import socket
+from typing import Any
+from typing import Dict
 
-import bencode
+import bencode  # type: ignore
 from syncr_backend.constants import FRONTEND_UNIX_ADDRESS
 from syncr_backend.init.node_init import get_full_init_directory
 
@@ -11,13 +14,13 @@ from .constants import TCP_ADDRESS
 from .constants import TIMEOUT
 
 
-def send_request(request):
+def send_request(request: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Sends message to backend over socket connection and waits for a response
+    Send message to backend over socket connection and wait for a response.
 
     :param request: dictionary of info to be sent to backend
+    :return: The response
     """
-
     # Convert dictionary to send-able type
     data_string = bencode.encode(request)
 
@@ -46,11 +49,13 @@ def send_request(request):
     return response
 
 
-def _tcp_send_message(msg):
+def _tcp_send_message(msg: bytes) -> bytes:
     """
-    Sends message to backend over tcp socket and awaits a response
-    """
+    Send message to backend over tcp socket and wait for a response.
 
+    :param msg: The message to send
+    :return: The response
+    """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(TIMEOUT)
     s.connect(TCP_ADDRESS)
@@ -72,11 +77,13 @@ def _tcp_send_message(msg):
     return response
 
 
-def _unix_send_message(msg):
+def _unix_send_message(msg: bytes) -> bytes:
     """
-    Sends message to backend over unix socket and awaits a response
-    """
+    Send message to backend over unix socket and wait for a response.
 
+    :param msg: The message to send
+    :return: The response
+    """
     s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     s.settimeout(TIMEOUT)
     s.connect(os.path.join(get_full_init_directory(), FRONTEND_UNIX_ADDRESS))
